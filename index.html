@@ -666,7 +666,7 @@ function renderHoy(main){
       <div class="bar"><i style="width:${Math.min(100,(h.steps||0)/STEP_GOAL*100)}%"></i></div>
       <div class="stepper">
         <button class="wide" data-action="steps" data-v="-500">−500</button>
-        <input class="num-in" id="steps-in" type="number" inputmode="numeric" value="${h.steps||0}" min="0" step="100" aria-label="Pasos de hoy">
+        <input class="num-in" id="steps-in" type="number" inputmode="numeric" value="${h.steps||0}" min="0" step="100" aria-label="Pasos de hoy" onfocus="this.select()">
         <button class="wide" data-action="steps" data-v="500">+500</button>
       </div>
     </div>`));
