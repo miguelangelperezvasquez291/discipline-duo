@@ -79,7 +79,7 @@
   .brand { display:flex; align-items:center; gap:10px; min-width:0; }
   .brand .dot { width:11px; height:11px; border-radius:3px; background:var(--accent); box-shadow:0 0 0 4px var(--accent-soft); flex:0 0 auto; }
   .brand h1 { font-family:var(--ff-display); font-weight:800; font-size:19px; letter-spacing:-.02em; margin:0; white-space:nowrap; }
-  .date { font-size:13.5px; color:var(--muted); margin-top:2px; }
+  .date { font-size:13.5px; color:var(--muted); margin-top:2px; white-space:nowrap; }
   .switch { display:flex; gap:4px; background:var(--surface-2); padding:4px; border-radius:13px; flex:0 0 auto; }
   .switch button {
     border:0; background:transparent; color:var(--muted); font-weight:600; font-size:14px;
@@ -578,7 +578,7 @@ function render(){
   document.getElementById("theme-color").setAttribute("content", ui.profile==="miguel" ? "#08080A" : "#F3F0F8");
   document.querySelectorAll("#switch button").forEach(b=>b.classList.toggle("on",b.dataset.p===ui.profile));
   document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===ui.tab));
-  document.getElementById("date").textContent = cap(TODAY.toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long"}));
+  document.getElementById("date").textContent = cap(TODAY.toLocaleDateString("es-ES",{weekday:"short",day:"numeric",month:"short"}));
   const m=document.getElementById("main");
   m.innerHTML="";
   if(ui.tab==="hoy") renderHoy(m);
