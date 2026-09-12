@@ -1,0 +1,963 @@
+<title>Discipline Duo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Mono:wght@700&display=swap">
+<style>
+  /* ================================================================
+     Dos mundos visuales, uno por perfil.
+     Miguel  -> negro y grafito, industrial, duro.
+     Sofia   -> gris lila y morado, claro, girly.
+     Cada paleta se pinta completa y explícita: la app no sigue el
+     tema del teléfono, sigue el perfil activo.
+     ================================================================ */
+  :root, :root[data-profile="miguel"] {
+    --ground: #08080A;
+    --surface: #121215;
+    --surface-2: #1B1B20;
+    --line: #2A2A31;
+    --text: #F3F3F5;
+    --muted: #8C8C97;
+    --faint: #5A5A66;
+    --accent: #E9E9EC;
+    --accent-soft: rgba(233,233,236,.10);
+    --on-accent: #08080A;
+    --reward: #C9CBD2;
+    --good: #9BE8B0;
+    --warn: #E8C87A;
+    --ring-track: #23232A;
+    --quote-case: uppercase;
+    --quote-spacing: .01em;
+    --photo-filter: grayscale(1) contrast(1.15);
+  }
+  :root[data-profile="sofia"] {
+    --ground: #F3F0F8;
+    --surface: #FFFFFF;
+    --surface-2: #EFE9F7;
+    --line: #E2D9F0;
+    --text: #241B33;
+    --muted: #6C6182;
+    --faint: #9A8FAF;
+    --accent: #7A45E0;
+    --accent-soft: rgba(122,69,224,.10);
+    --on-accent: #FFFFFF;
+    --reward: #D9599F;
+    --good: #2E9E6B;
+    --warn: #C98A2B;
+    --ring-track: #E4DAF3;
+    --quote-case: none;
+    --quote-spacing: 0;
+    --photo-filter: none;
+  }
+
+  :root {
+    --radius: 20px;
+    --radius-sm: 14px;
+    --ff-display: "Bricolage Grotesque", "DM Sans", system-ui, sans-serif;
+    --ff-body: "DM Sans", system-ui, -apple-system, sans-serif;
+    --ff-mono: "Space Mono", ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html { background: #08080A; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--text);
+    font-family: var(--ff-body);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.45;
+    transition: background .35s ease, color .35s ease;
+  }
+  button { font-family: inherit; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+  }
+
+  .shell {
+    max-width: 460px; margin: 0 auto; min-height: 100vh;
+    background: var(--ground); display: flex; flex-direction: column;
+    transition: background .35s ease;
+  }
+  @media (min-width: 480px) {
+    body { padding: 22px 0; }
+    .shell { min-height: calc(100vh - 44px); border-radius: 34px; border: 1px solid var(--line); overflow: hidden; }
+  }
+
+  /* ---------- Header ---------- */
+  header {
+    position: sticky; top: 0; z-index: 20; padding: 15px 18px 11px;
+    background: var(--ground); border-bottom: 1px solid var(--line);
+  }
+  .brand-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .brand { display: flex; align-items: center; gap: 9px; min-width: 0; }
+  .brand .dot { width: 10px; height: 10px; border-radius: 3px; background: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); flex: 0 0 auto; }
+  .brand h1 { font-family: var(--ff-display); font-weight: 800; font-size: 17px; letter-spacing: -.02em; margin: 0; white-space: nowrap; }
+  .date { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+  .switch { display: flex; gap: 4px; background: var(--surface-2); padding: 4px; border-radius: 12px; flex: 0 0 auto; }
+  .switch button {
+    border: 0; background: transparent; color: var(--muted); font-weight: 600; font-size: 13px;
+    padding: 6px 11px; border-radius: 9px; transition: all .2s ease; display: flex; align-items: center; gap: 6px;
+  }
+  .switch button .av { width: 15px; height: 15px; border-radius: 50%; flex: 0 0 auto; }
+  .switch button[data-p="miguel"] .av { background: linear-gradient(140deg,#D7D7DC,#6E6E78); }
+  .switch button[data-p="sofia"] .av { background: linear-gradient(140deg,#B98CF5,#E06CAE); }
+  .switch button.on { background: var(--surface); color: var(--text); }
+
+  main { flex: 1; padding: 15px 15px 92px; display: flex; flex-direction: column; gap: 13px; }
+
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+  .card-title { font-family: var(--ff-display); font-weight: 700; font-size: 15px; letter-spacing: -.01em; margin: 0 0 2px; }
+  .card-sub { font-size: 12.5px; color: var(--muted); margin: 0; }
+  .eyebrow { font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+  .disclaimer { font-size: 10.5px; color: var(--faint); }
+
+  /* ---------- Frase del día ---------- */
+  .quote { display: flex; gap: 14px; align-items: center; }
+  .photo {
+    flex: 0 0 66px; width: 66px; height: 66px; border-radius: 18px; overflow: hidden;
+    background: var(--surface-2); border: 1px solid var(--line); display: grid; place-items: center;
+    cursor: pointer; position: relative;
+  }
+  .photo img { width: 100%; height: 100%; object-fit: cover; filter: var(--photo-filter); display: block; }
+  .photo .ph { display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--faint); }
+  .photo .ph svg { width: 20px; height: 20px; }
+  .photo .ph span { font-size: 8.5px; font-weight: 700; letter-spacing: .06em; }
+  .quote-txt { flex: 1; min-width: 0; }
+  .quote-txt .q {
+    font-family: var(--ff-display); font-weight: 700; font-size: 14.5px; line-height: 1.35;
+    letter-spacing: var(--quote-spacing); text-transform: var(--quote-case); text-wrap: balance; margin: 0;
+  }
+  .quote-txt .qe { font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); margin: 0 0 5px; }
+
+  /* ---------- Hero anillo ---------- */
+  .hero { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 17px; display: flex; align-items: center; gap: 15px; }
+  .ring { position: relative; flex: 0 0 102px; width: 102px; height: 102px; }
+  .ring svg { transform: rotate(-90deg); display: block; }
+  .ring .track { stroke: var(--ring-track); }
+  .ring .prog { stroke: var(--accent); stroke-linecap: round; transition: stroke-dashoffset .6s cubic-bezier(.4,0,.2,1); }
+  .ring .center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .ring .pct { font-family: var(--ff-mono); font-size: 25px; font-weight: 700; letter-spacing: -.03em; line-height: 1; }
+  .ring .pct span { font-size: 12px; color: var(--muted); }
+  .ring .cap { font-size: 9.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; margin-top: 3px; }
+  .hero-side { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 9px; }
+  .hero-title { font-family: var(--ff-display); font-weight: 800; font-size: 16px; letter-spacing: -.02em; line-height: 1.22; margin: 0; text-wrap: balance; }
+  .stat-row { display: flex; gap: 7px; }
+  .stat { flex: 1; background: var(--surface-2); border-radius: var(--radius-sm); padding: 8px 9px; }
+  .stat .n { font-family: var(--ff-mono); font-weight: 700; font-size: 16px; line-height: 1.1; color: var(--reward); font-variant-numeric: tabular-nums; }
+  .stat .l { font-size: 10px; color: var(--muted); }
+
+  /* ---------- Avisos por hora ---------- */
+  .nudge { display: flex; gap: 10px; align-items: flex-start; background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--warn); border-radius: var(--radius-sm); padding: 11px 13px; }
+  .nudge .ic { font-size: 16px; line-height: 1.2; flex: 0 0 auto; }
+  .nudge p { margin: 0; font-size: 13px; }
+
+  /* ---------- Hábitos ---------- */
+  .habit { display: flex; flex-direction: column; gap: 11px; }
+  .habit-head { display: flex; align-items: center; gap: 11px; }
+  .habit-ic { flex: 0 0 38px; width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+  .habit-ic svg { width: 20px; height: 20px; }
+  .habit-meta { flex: 1; min-width: 0; }
+  .habit-name { font-weight: 600; font-size: 14.5px; }
+  .habit-goal { font-size: 11.5px; color: var(--muted); }
+  .habit-val { font-family: var(--ff-mono); font-weight: 700; font-size: 15px; white-space: nowrap; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .habit-val.done { color: var(--accent); }
+
+  .stepper { display: flex; align-items: center; gap: 8px; }
+  .stepper button {
+    flex: 0 0 auto; width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line);
+    background: var(--surface-2); color: var(--text); font-size: 19px; font-weight: 600;
+    display: grid; place-items: center; transition: transform .1s;
+  }
+  .stepper button:active { transform: scale(.92); }
+  .stepper button.wide { width: auto; padding: 0 14px; font-size: 13.5px; font-family: var(--ff-mono); }
+  .stepper .fill { flex: 1; min-width: 0; }
+  .bar { height: 9px; background: var(--surface-2); border-radius: 999px; overflow: hidden; }
+  .bar > i { display: block; height: 100%; background: var(--accent); border-radius: 999px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+  .num-in {
+    width: 88px; text-align: center; font-family: var(--ff-mono); font-weight: 700; font-size: 15px;
+    padding: 9px 4px; border-radius: 11px; border: 1px solid var(--line); background: var(--surface-2); color: var(--text);
+  }
+
+  .check { display: flex; align-items: center; gap: 11px; width: 100%; background: transparent; border: 0; padding: 0; text-align: left; color: var(--text); }
+  .box { flex: 0 0 27px; width: 27px; height: 27px; border-radius: 9px; border: 2px solid var(--line); display: grid; place-items: center; transition: all .18s ease; color: var(--on-accent); }
+  .box svg { width: 15px; height: 15px; opacity: 0; transform: scale(.5); transition: all .18s ease; }
+  .check.on .box { background: var(--accent); border-color: var(--accent); }
+  .check.on .box svg { opacity: 1; transform: scale(1); }
+
+  /* ---------- Gym ---------- */
+  .badge { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); letter-spacing: .03em; }
+  .note { display: flex; gap: 9px; align-items: flex-start; background: var(--surface-2); border-radius: var(--radius-sm); padding: 11px 12px; font-size: 12.5px; color: var(--muted); border-left: 3px solid var(--warn); }
+  .note b { color: var(--text); font-weight: 600; }
+
+  .ex { padding: 12px 0; border-top: 1px solid var(--line); }
+  .ex:first-of-type { border-top: 0; padding-top: 4px; }
+  .ex-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .ex-name { font-weight: 600; font-size: 14px; }
+  .ex-scheme { font-family: var(--ff-mono); font-size: 11.5px; color: var(--muted); white-space: nowrap; }
+  .ex-tip { font-size: 11.5px; color: var(--faint); margin-top: 2px; }
+  .sets { display: flex; gap: 6px; margin-top: 9px; flex-wrap: wrap; }
+  .set-dot {
+    width: 34px; height: 34px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface-2);
+    color: var(--muted); font-family: var(--ff-mono); font-weight: 700; font-size: 12px; display: grid; place-items: center; transition: all .15s ease;
+  }
+  .set-dot.on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .ex-done { color: var(--good); }
+
+  /* ---------- Calendario ---------- */
+  .cal-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 11px; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+  .cal-dow { text-align: center; font-size: 10px; font-weight: 700; color: var(--faint); letter-spacing: .04em; padding-bottom: 2px; }
+  .cal-cell {
+    aspect-ratio: 1; border-radius: 10px; border: 1px solid transparent; background: var(--surface-2);
+    color: var(--muted); font-family: var(--ff-mono); font-size: 11px; font-weight: 700;
+    display: grid; place-items: center; transition: all .15s ease; padding: 0;
+  }
+  .cal-cell.void { background: transparent; }
+  .cal-cell.on { background: var(--accent); color: var(--on-accent); }
+  .cal-cell.today { border-color: var(--reward); }
+  .cal-cell.future { opacity: .35; }
+
+  /* ---------- Ciclo ---------- */
+  .phases { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; }
+  .phase { border: 1.5px solid var(--line); background: var(--surface-2); border-radius: var(--radius-sm); padding: 10px 11px; text-align: left; color: var(--text); display: flex; flex-direction: column; gap: 1px; transition: all .15s ease; }
+  .phase .pdot { width: 8px; height: 8px; border-radius: 50%; margin-bottom: 4px; }
+  .phase .pn { font-weight: 600; font-size: 13px; }
+  .phase .pd { font-size: 10.5px; color: var(--muted); }
+  .phase.on { border-color: var(--accent); background: var(--accent-soft); }
+  .advice { margin-top: 11px; background: var(--accent-soft); border-radius: var(--radius-sm); padding: 13px 14px; }
+  .advice .tag { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+  .advice p { margin: 0; font-size: 13px; }
+  .adjust { display: flex; gap: 7px; margin-top: 10px; }
+  .adjust div { flex: 1; background: var(--surface); border-radius: 11px; padding: 8px 9px; text-align: center; }
+  .adjust .k { font-size: 9.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+  .adjust .v { font-family: var(--ff-mono); font-weight: 700; font-size: 13px; }
+
+  /* ---------- Tenis ---------- */
+  .block { display: flex; align-items: center; gap: 11px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .block:first-of-type { border-top: 0; }
+  .block .min { flex: 0 0 46px; font-family: var(--ff-mono); font-weight: 700; font-size: 13px; color: var(--accent); text-align: right; font-variant-numeric: tabular-nums; }
+  .block .bn { font-size: 13.5px; font-weight: 500; }
+  .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 11px; }
+  .field label { font-size: 11.5px; font-weight: 600; color: var(--muted); }
+  .field textarea, .field input[type=date] {
+    font-family: inherit; font-size: 14px; color: var(--text); background: var(--surface-2);
+    border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; resize: vertical; width: 100%;
+  }
+  .field textarea { min-height: 56px; }
+  .feel { display: flex; gap: 6px; }
+  .feel button { flex: 1; border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 11px; padding: 8px 0; font-size: 17px; transition: all .15s ease; }
+  .feel button.on { border-color: var(--accent); background: var(--accent-soft); transform: translateY(-1px); }
+  .btn-primary { width: 100%; border: 0; background: var(--accent); color: var(--on-accent); font-weight: 700; font-size: 14.5px; padding: 13px; border-radius: 14px; transition: transform .1s, opacity .15s; }
+  .btn-primary:active { transform: scale(.98); }
+  .btn-primary:disabled { opacity: .4; }
+  .log { border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 12px; margin-top: 9px; }
+  .log-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .log-date { font-family: var(--ff-mono); font-size: 11px; color: var(--muted); }
+  .log h4 { margin: 8px 0 1px; font-size: 10.5px; color: var(--faint); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+  .log p { margin: 0; font-size: 13.5px; }
+  .del { background: transparent; border: 0; color: var(--faint); font-size: 11.5px; padding: 4px; }
+  .empty { text-align: center; color: var(--muted); font-size: 13px; padding: 20px 8px; }
+
+  /* ---------- Nav ---------- */
+  nav { position: sticky; bottom: 0; z-index: 20; display: flex; padding: 7px 10px calc(7px + env(safe-area-inset-bottom)); background: var(--ground); border-top: 1px solid var(--line); }
+  nav button { flex: 1; border: 0; background: transparent; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 5px 0; font-size: 10.5px; font-weight: 600; transition: color .15s; }
+  nav button svg { width: 21px; height: 21px; }
+  nav button.on { color: var(--accent); }
+  .sync { display: flex; align-items: center; gap: 6px; font-size: 10.5px; color: var(--faint); justify-content: center; padding: 0 0 6px; }
+  .sync .d { width: 6px; height: 6px; border-radius: 50%; background: var(--good); }
+  .sync .d.off { background: var(--faint); }
+
+  #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; }
+  .celebrate { animation: pop .45s ease; }
+  @keyframes pop { 0%{transform:scale(1)} 40%{transform:scale(1.035)} 100%{transform:scale(1)} }
+</style>
+
+<div class="shell">
+  <header>
+    <div class="brand-row">
+      <div class="brand">
+        <span class="dot"></span>
+        <div><h1>Discipline Duo</h1><div class="date" id="date"></div></div>
+      </div>
+      <div class="switch" id="switch">
+        <button data-action="profile" data-p="miguel"><span class="av"></span>Miguel</button>
+        <button data-action="profile" data-p="sofia"><span class="av"></span>Sofía</button>
+      </div>
+    </div>
+  </header>
+  <main id="main"></main>
+  <div class="sync"><span class="d off" id="sync-dot"></span><span id="sync-txt">Guardando en este dispositivo</span></div>
+  <nav id="nav">
+    <button data-action="tab" data-t="hoy" class="on">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Hoy
+    </button>
+    <button data-action="tab" data-t="gym">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/><path d="m3 10 7-7"/><path d="m14 21 7-7"/></svg>Gym
+    </button>
+    <button data-action="tab" data-t="tenis">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M18.1 3.5A10 10 0 0 0 5.5 5.5c-2.3 2.3-3.2 5.5-2 8.6"/><path d="M5.9 20.5A10 10 0 0 0 18.5 18.5c2.3-2.3 3.2-5.5 2-8.6"/></svg>Tenis
+    </button>
+  </nav>
+</div>
+<canvas id="confetti"></canvas>
+<input type="file" accept="image/*" id="photo-in" hidden>
+
+<script>
+/* ================================================================
+   Discipline Duo — app privada para Miguel y Sofía.
+   ================================================================ */
+
+const WATER_GOAL = 2.5;
+const STEP_GOAL  = 10000;
+
+/* ---------------- Frases del día ---------------- */
+const QUOTES = {
+  miguel: [
+    "Si te duele, si estás cansado, si no quieres… es exactamente el momento en el que tienes que hacerlo.",
+    "Estás cerca. Por eso se está poniendo difícil.",
+    "La motivación es basura. Cuando la motivación desaparece, lo único que te queda es la disciplina.",
+    "Did it tired. Did it alone. Did it broke. Did it scared. Still DOING it.",
+    "Un hombre enfocado construye una vida poderosa.",
+    "Si el dolor es el precio para convertirte en el mejor… entonces déjame sufrir.",
+    "No negocies con la comodidad. La comodidad es la tumba de la ambición.",
+    "El cuerpo logra lo que la mente cree y la disciplina sostiene.",
+    "Nadie va a venir a salvarte. Levántate.",
+    "Las excusas son mentiras bien vestidas.",
+    "Hazlo cansado. Hazlo sin ganas. Pero hazlo.",
+    "La disciplina pesa gramos. El arrepentimiento pesa toneladas.",
+    "Tu única competencia es el hombre que fuiste ayer.",
+    "Endurece la mente primero. El cuerpo va detrás.",
+    "El que aguanta más, gana.",
+    "No se trata de tener ganas. Se trata de que ya lo decidiste.",
+    "Quien te vio empezar no va a reconocer en quién te vas a convertir.",
+    "Cada repetición que no querías hacer es la que te cambia.",
+    "Sé tan disciplinado que la suerte se vuelva irrelevante.",
+    "Nadie te debe nada. Constrúyelo tú.",
+    "El descanso se gana. Hoy todavía no.",
+    "Stay hard."
+  ],
+  sofia: [
+    "Yes girl, you can.",
+    "Girl, get up. Nobody is going to do it for you.",
+    "Tengo el poder de crear la vida que deseo.",
+    "Prove everybody wrong, girl.",
+    "Seriously, no one cares. Just do your thing.",
+    "Don't let your fear decide your future.",
+    "I will win.",
+    "Tu futuro es brillante, mantente enfocada.",
+    "Eres tu proyecto más importante.",
+    "She believed she could, so she did.",
+    "No estás atrasada. Estás construyendo.",
+    "Hazlo con miedo, pero hazlo.",
+    "Tu cuerpo escucha todo lo que tu mente dice. Háblale bonito.",
+    "Un día más de constancia es un día más lejos de quien eras.",
+    "Glow up is an inside job.",
+    "La disciplina es la forma más alta de amor propio.",
+    "Nadie va a querer tus metas más que tú.",
+    "Confía en el proceso, incluso cuando no veas el cambio.",
+    "Strong is the new pretty.",
+    "Sigue. Tu yo del futuro te lo va a agradecer.",
+    "Elegante por fuera, feroz por dentro.",
+    "Lo estás haciendo mejor de lo que crees."
+  ]
+};
+
+/* ---------------- Iconos ---------------- */
+const IC = {
+  water:'<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5S5 13 5 15a7 7 0 0 0 7 7z"/>',
+  sleep:'<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/>',
+  read:'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+  steps:'<path d="M4 20h5v-2.5a3.5 3.5 0 1 0-5 0z"/><path d="M15 12h5V9.5a3.5 3.5 0 1 0-5 0z"/><path d="M9 17.5c0-2 1-3.5 1-6"/><path d="M20 9.5c0 2-1 3.5-1 6"/>',
+  creatina:'<path d="m13 2-9 12h7l-1 8 9-12h-7z"/>',
+  proteina:'<path d="M12 2a5 5 0 0 0-5 5v1H6a2 2 0 0 0-2 2l1 10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2l1-10a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5z"/><path d="M9 13h6"/>',
+  check:'<path d="M20 6 9 17l-5-5"/>',
+  cam:'<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/>'
+};
+
+/* ---------------- Hábitos por perfil ---------------- */
+const HABITS = {
+  miguel: ["water","sleep","read","steps","creatina","proteina"],
+  sofia:  ["water","sleep","read","steps"]
+};
+
+/* ---------------- Rutinas ----------------
+   Miguel: hipertrofia con básicos pesados 6-8 reps cerca del fallo,
+   accesorios 10-15. Sofía: pierna/glúteo 8-12, cuidando zona lumbar.
+------------------------------------------- */
+const ROUTINES = {
+  miguel: {
+    1:{title:"Upper A · Empuje", tag:"Pesado 6-8", ex:[
+      ["Press de banca","4×6-8","Baja controlado, explota al subir"],
+      ["Press militar con barra","4×6-8","Glúteo y abdomen apretados"],
+      ["Press inclinado con mancuernas","3×8",""],
+      ["Fondos en paralelas (lastrados)","3×6-8","Añade peso cuando pases de 8"],
+      ["Elevaciones laterales","3×12-15","Accesorio: más reps"],
+      ["Extensión de tríceps en polea","3×10-12",""]]},
+    2:{title:"Lower A", tag:"Pesado 6-8", ex:[
+      ["Sentadilla","4×6-8","Profundidad cómoda, espalda neutra"],
+      ["Peso muerto rumano","3×6-8","Estiramiento del femoral"],
+      ["Prensa","3×8-10",""],
+      ["Curl femoral","3×10-12",""],
+      ["Gemelos de pie","4×12-15",""]]},
+    3:{title:"Descanso activo · Cardio", tag:"Recuperación", rest:true, ex:[
+      ["Caminata rápida","35-40 min","Ideal para cerrar los 10.000 pasos"],
+      ["Bici o elíptica suave","15 min","Ritmo conversacional"],
+      ["Movilidad de hombro y cadera","10 min",""],
+      ["Plancha","3×45 s",""]]},
+    4:{title:"Upper B · Tirón", tag:"Pesado 6-8", ex:[
+      ["Dominadas (lastradas)","4×6-8","Si pasas de 8 limpias, añade peso"],
+      ["Remo con barra","4×6-8","Tronco firme, sin tirones"],
+      ["Jalón al pecho","3×8-10",""],
+      ["Remo en polea baja","3×8-10",""],
+      ["Face pull","3×15","Salud del hombro"],
+      ["Curl con barra","3×8-10",""],
+      ["Curl martillo","3×10-12",""]]},
+    5:{title:"Lower B", tag:"Pesado 6-8", ex:[
+      ["Sentadilla frontal","4×6-8",""],
+      ["Hip thrust","3×8",""],
+      ["Zancadas con mancuernas","3×8","Por pierna"],
+      ["Extensión de cuádriceps","3×12",""],
+      ["Gemelos sentado","4×15",""]]},
+    6:{title:"Upper C · Hombro y brazo", tag:"Volumen", ex:[
+      ["Press militar sentado","4×6-8",""],
+      ["Elevaciones laterales","4×12-15",""],
+      ["Press cerrado","3×6-8",""],
+      ["Curl con barra Z","3×8-10",""],
+      ["Press francés","3×10-12",""],
+      ["Antebrazo","3×15",""]]},
+    0:{title:"Tenis · descanso de gym", tag:"🎾 Domingo", rest:true, ex:[
+      ["Estiramiento post-tenis","10 min",""],
+      ["Movilidad de cadera y hombro","8 min",""]]}
+  },
+  sofia: {
+    1:{title:"Lower A · Glúteo", tag:"Pierna / glúteo", lumbar:true, ex:[
+      ["Hip thrust","4×8-10","Barbilla al pecho, costillas abajo"],
+      ["Sentadilla goblet","3×10","Peso al pecho, espalda neutra"],
+      ["Peso muerto rumano con mancuernas","3×10","Rango cómodo, sin redondear"],
+      ["Abducción en máquina","3×15-20",""],
+      ["Patada de glúteo en polea","3×12-15",""]]},
+    2:{title:"Upper A", tag:"Tren superior", ex:[
+      ["Press de pecho con mancuernas","3×10-12",""],
+      ["Remo con pecho apoyado","3×10-12","Pecho apoyado: protege la lumbar"],
+      ["Jalón al pecho","3×10-12",""],
+      ["Elevaciones laterales","3×15",""],
+      ["Curl de bíceps","3×12",""]]},
+    3:{title:"Movilidad + core", tag:"Recuperación", rest:true, lumbar:true, ex:[
+      ["Movilidad de cadera","10 min",""],
+      ["Dead bug","3×10","Core anti-extensión, cuida la lumbar"],
+      ["Bird-dog","3×10",""],
+      ["Caminata","30-35 min",""]]},
+    4:{title:"Lower B · Pierna", tag:"Pierna / glúteo", ex:[
+      ["Prensa","4×10-12","Espalda baja pegada al respaldo"],
+      ["Zancada búlgara","3×10","Por pierna"],
+      ["Curl femoral tumbada","3×12",""],
+      ["Extensión de cuádriceps","3×15",""],
+      ["Abductores","3×20",""]]},
+    5:{title:"Upper B", tag:"Tren superior", ex:[
+      ["Press militar sentada con respaldo","3×10-12",""],
+      ["Remo en máquina","3×12",""],
+      ["Aperturas","3×15",""],
+      ["Face pull","3×15",""],
+      ["Tríceps en polea","3×15",""]]},
+    6:{title:"Glúteo & accesorios", tag:"Pierna / glúteo", lumbar:true, ex:[
+      ["Hip thrust","4×10-12",""],
+      ["Puente de glúteo con banda","3×15",""],
+      ["Abducción","3×20",""],
+      ["Patada de glúteo","3×15",""],
+      ["Gemelos","4×20",""]]},
+    0:{title:"Tenis · descanso de gym", tag:"🎾 Domingo", rest:true, ex:[
+      ["Estiramiento de cadera y espalda","10 min",""],
+      ["Movilidad","8 min",""]]}
+  }
+};
+const LUMBAR_NOTE = "<b>Cuida tu zona lumbar:</b> espalda neutra, sin redondear ni arquear de más. Nada de carga axial pesada; si algo molesta, baja el peso o cámbialo.";
+const HEAVY_NOTE  = "<b>Cómo progresar:</b> en los básicos busca 6-8 reps cerca del fallo (te sobran 1-2). Cuando logres 8 limpias en todas las series, sube el peso. Los accesorios van a 10-15.";
+
+/* ---------------- Ciclo menstrual ---------------- */
+const PHASES = {
+  "Menstrual":  {color:"#D9599F", load:"Peso −20%",  rest:"2-3 min", tip:"Energía baja. Mantén las mismas repeticiones pero baja el peso alrededor de un 20%. Si un ejercicio molesta, cámbialo o sáltalo. Puedes quitar una serie a los ejercicios más largos."},
+  "Folicular":  {color:"#7A45E0", load:"Peso +0-5%", rest:"90 s",    tip:"Energía en alza: tu mejor ventana para progresar. Mismas repeticiones, sube el peso poco a poco. Aquí es donde se construye."},
+  "Ovulatoria": {color:"#2E9E6B", load:"Peso +5-10%",rest:"2 min",   tip:"Pico de fuerza. Mismas repeticiones, tu mejor peso de la semana. Cuida la técnica: hay más laxitud articular, así que nada de rebotes."},
+  "Lútea":      {color:"#C98A2B", load:"Peso −10%",  rest:"2-3 min", tip:"Energía a la baja. Mismas repeticiones, mantén o baja el peso un 10% y descansa más entre series. Prioriza sueño y comida."}
+};
+
+/* ---------------- Tenis: 8 sesiones que rotan ---------------- */
+const TENNIS = [
+  {name:"Fundamentos de derecha", blocks:[[10,"Calentamiento y peloteo suave"],[20,"Derecha cruzada, buscando profundidad"],[15,"Derecha paralela"],[10,"Puntos jugando solo derechas"],[5,"Estiramiento"]]},
+  {name:"Revés sólido",           blocks:[[10,"Calentamiento y peloteo suave"],[20,"Revés cruzado"],[15,"Revés paralelo"],[10,"Peloteo alternando derecha y revés"],[5,"Estiramiento"]]},
+  {name:"Saque y devolución",     blocks:[[10,"Calentamiento y movilidad de hombro"],[20,"Técnica de saque sin presión"],[15,"Saques a objetivos (conos)"],[10,"Devoluciones"],[5,"Estiramiento"]]},
+  {name:"Red y voleas",           blocks:[[10,"Calentamiento"],[20,"Volea de derecha y de revés"],[15,"Aproximación y volea"],[10,"Puntos cortos en la red"],[5,"Estiramiento"]]},
+  {name:"Pies y desplazamiento",  blocks:[[10,"Calentamiento"],[15,"Escalera y pasos laterales"],[20,"Peloteo en movimiento"],[10,"Recuperación al centro tras cada golpe"],[5,"Estiramiento"]]},
+  {name:"Táctica y construcción", blocks:[[10,"Calentamiento"],[20,"Construcción del punto: abrir y cerrar"],[20,"Puntos con condición (3 golpes mínimo)"],[10,"Estiramiento y charla del día"]]},
+  {name:"Fondo combinado",        blocks:[[10,"Calentamiento"],[20,"Derecha y revés alternos"],[15,"Cambios de dirección"],[10,"Peloteo largo sin fallar"],[5,"Estiramiento"]]},
+  {name:"Partido",                blocks:[[10,"Calentamiento"],[10,"Saques de práctica"],[35,"Sets cortos a 4 juegos"],[5,"Estiramiento"]]}
+];
+const TENNIS_ANCHOR = new Date(2026,0,4); // domingo de referencia
+
+/* ---------------- Estado ---------------- */
+function blankProfile(){ return { habits:{}, gym:{}, cycle:{}, att:{} }; }
+let data = { miguel: blankProfile(), sofia: blankProfile(), tennis: [] };
+let ui = { profile:"miguel", tab:"hoy", tennisDraft:{}, celebrated:{} };
+let photos = { miguel:null, sofia:null };
+
+const NOW   = new Date();
+const TODAY = new Date();
+function keyOf(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+const TKEY = keyOf(TODAY);
+
+/* ---------------- Guardado ---------------- */
+const LS = {
+  read(k,f){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f; }catch(e){ return f; } },
+  write(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+};
+let db = null;
+const timers = {};
+
+function loadLocal(){
+  // Migración: la versión anterior guardaba a Sofía como "ella".
+  const old = LS.read("dd_ella", null);
+  data.miguel = LS.read("dd_miguel", blankProfile());
+  data.sofia  = LS.read("dd_sofia", old || blankProfile());
+  data.tennis = LS.read("dd_tennis", []);
+  ui.profile  = LS.read("dd_profile","miguel");
+  ui.tab      = LS.read("dd_tab","hoy");
+  if(ui.profile==="ella") ui.profile="sofia";
+  ["miguel","sofia"].forEach(p=>{ const d=data[p]; d.habits=d.habits||{}; d.gym=d.gym||{}; d.cycle=d.cycle||{}; d.att=d.att||{}; });
+  photos.miguel = LS.read("dd_photo_miguel", null);
+  photos.sofia  = LS.read("dd_photo_sofia", null);
+}
+function saveProfile(p){
+  LS.write("dd_"+p, data[p]);
+  clearTimeout(timers[p]);
+  timers[p]=setTimeout(()=>{ if(db) db.doc("profiles/"+p).set(data[p]).catch(()=>{}); },500);
+}
+function saveTennis(){
+  LS.write("dd_tennis", data.tennis);
+  clearTimeout(timers.tennis);
+  timers.tennis=setTimeout(()=>{ if(db) db.doc("shared/tennis").set({entries:data.tennis}).catch(()=>{}); },500);
+}
+async function initDB(){
+  let ns=null;
+  try { ns = window.claude ? await window.claude.use("db") : null; } catch(e){ ns=null; }
+  if(!ns) return;
+  db=ns;
+  document.getElementById("sync-dot").classList.remove("off");
+  document.getElementById("sync-txt").textContent="Sincronizado entre dispositivos";
+  ["miguel","sofia"].forEach(p=>{
+    db.doc("profiles/"+p).onSnapshot(s=>{
+      if(!s.exists){ saveProfile(p); return; }
+      const inc=s.data();
+      if(JSON.stringify(inc)===JSON.stringify(data[p])) return;
+      data[p]=Object.assign(blankProfile(),inc);
+      LS.write("dd_"+p,data[p]); render();
+    },()=>{});
+  });
+  db.doc("shared/tennis").onSnapshot(s=>{
+    if(!s.exists){ if(data.tennis.length) saveTennis(); return; }
+    const e=s.data().entries||[];
+    if(JSON.stringify(e)===JSON.stringify(data.tennis)) return;
+    data.tennis=e; LS.write("dd_tennis",data.tennis); render();
+  },()=>{});
+}
+
+/* ---------------- Lógica ---------------- */
+function todayHabit(p){
+  const h=data[p].habits;
+  if(!h[TKEY]) h[TKEY]={water:0,sleep:false,read:false,steps:0,creatina:false,proteina:false};
+  return h[TKEY];
+}
+function isDone(p,h,k){
+  if(k==="water") return (h.water||0)>=WATER_GOAL;
+  if(k==="steps") return (h.steps||0)>=STEP_GOAL;
+  return !!h[k];
+}
+function doneCount(p,h){ return HABITS[p].filter(k=>isDone(p,h,k)).length; }
+function dayFull(p,h){ return !!h && doneCount(p,h)===HABITS[p].length; }
+function pointsDay(p,h){ if(!h) return 0; const n=doneCount(p,h); return n*10 + (n===HABITS[p].length?20:0); }
+function totalPoints(p){ return Object.values(data[p].habits).reduce((s,h)=>s+pointsDay(p,h),0); }
+function streak(p){
+  const h=data[p].habits;
+  let cur = dayFull(p,h[TKEY]) ? new Date(TODAY) : addDays(TODAY,-1);
+  let n=0;
+  while(dayFull(p,h[keyOf(cur)])){ n++; cur=addDays(cur,-1); }
+  return n;
+}
+function wentToGym(p,k){
+  if(data[p].att[k]) return true;
+  return Object.keys(data[p].gym).some(g=>g.startsWith(k+"|"));
+}
+function gymStreak(p){
+  let cur=new Date(TODAY), n=0;
+  if(!wentToGym(p,TKEY)) cur=addDays(cur,-1);
+  while(wentToGym(p,keyOf(cur))){ n++; cur=addDays(cur,-1); }
+  return n;
+}
+function dayOfYear(d){ return Math.floor((d-new Date(d.getFullYear(),0,0))/86400000); }
+function quoteOfDay(p){ const l=QUOTES[p]; return l[dayOfYear(TODAY)%l.length]; }
+function tennisSession(){
+  const weeks=Math.floor((TODAY-TENNIS_ANCHOR)/(7*86400000));
+  return TENNIS[((weeks%TENNIS.length)+TENNIS.length)%TENNIS.length];
+}
+
+/* ---------------- Avisos según la hora ---------------- */
+function buildNudges(p,h){
+  const hr=NOW.getHours(), out=[];
+  const dow=TODAY.getDay(), routine=ROUTINES[p][dow];
+  if(dayFull(p,h)) return [{ic:"🏆",t:"Día completo. Todo cumplido — descansa bien, mañana se repite."}];
+  if(hr>=20 && !isDone(p,h,"read")) out.push({ic:"📖",t:"Se está haciendo tarde para leer. Con 10 minutos ya cuenta."});
+  if(hr>=17 && !isDone(p,h,"steps")){
+    const f=STEP_GOAL-(h.steps||0);
+    out.push({ic:"🚶",t:`Te faltan ${f.toLocaleString("es")} pasos. Una caminata de 20 minutos los cierra.`});
+  }
+  if(hr>=20 && !isDone(p,h,"water")) out.push({ic:"💧",t:`Te falta agua: ${(WATER_GOAL-(h.water||0)).toFixed(2).replace(/\.?0+$/,"")} L para la meta.`});
+  if(p==="miguel" && hr>=12 && !h.creatina) out.push({ic:"⚡",t:"No olvides la creatina de hoy."});
+  if(p==="miguel" && hr>=19 && !h.proteina) out.push({ic:"🥩",t:"Revisa si cerraste tus gramos de proteína."});
+  if(!routine.rest && hr>=16 && !wentToGym(p,TKEY)) out.push({ic:"🏋️",t:`Todavía no registras el entreno: hoy toca ${routine.title}.`});
+  if(routine.rest && dow===3 && hr>=16 && !isDone(p,h,"steps")) out.push({ic:"🚴",t:"Hoy es descanso activo: cardio suave o una caminata larga."});
+  if(hr<10 && !out.length) out.push({ic:"🌅",t:"Arranca el día. El primer hábito es el que empuja a los demás."});
+  if(hr>=22 && !isDone(p,h,"sleep")) out.push({ic:"🌙",t:"Hora de cerrar el día. Apunta a 7-8 horas."});
+  return out.slice(0,2);
+}
+
+/* ---------------- Render ---------------- */
+function el(h){ const t=document.createElement("template"); t.innerHTML=h.trim(); return t.content.firstElementChild; }
+function esc(s){ return (s||"").replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+
+function render(){
+  document.documentElement.setAttribute("data-profile",ui.profile);
+  document.querySelectorAll("#switch button").forEach(b=>b.classList.toggle("on",b.dataset.p===ui.profile));
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===ui.tab));
+  document.getElementById("date").textContent = cap(TODAY.toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long"}));
+  const m=document.getElementById("main");
+  m.innerHTML="";
+  if(ui.tab==="hoy") renderHoy(m);
+  else if(ui.tab==="gym") renderGym(m);
+  else renderTenis(m);
+  m.scrollTop=0;
+}
+
+function photoHTML(p){
+  return photos[p]
+    ? `<img src="${photos[p]}" alt="Foto de inspiración">`
+    : `<span class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${IC.cam}</svg><span>FOTO</span></span>`;
+}
+
+function renderHoy(main){
+  const p=ui.profile, h=todayHabit(p);
+  const total=HABITS[p].length, n=doneCount(p,h), pct=Math.round(n/total*100);
+  const R=46, C=2*Math.PI*R, off=C*(1-pct/100);
+
+  main.appendChild(el(`
+    <div class="card quote">
+      <button class="photo" data-action="photo" aria-label="Cambiar foto de inspiración">${photoHTML(p)}</button>
+      <div class="quote-txt">
+        <p class="qe">Frase del día</p>
+        <p class="q">${esc(quoteOfDay(p))}</p>
+      </div>
+    </div>`));
+
+  const msg = pct===100 ? "Día completado." : pct>=60 ? "Vas muy bien. Cierra el día." : pct>0 ? "Ya arrancaste. Sigue." : "A por los hábitos de hoy.";
+  main.appendChild(el(`
+    <div class="hero" id="hero">
+      <div class="ring">
+        <svg width="102" height="102" viewBox="0 0 102 102">
+          <circle class="track" cx="51" cy="51" r="${R}" fill="none" stroke-width="9"/>
+          <circle class="prog" cx="51" cy="51" r="${R}" fill="none" stroke-width="9" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"/>
+        </svg>
+        <div class="center"><div class="pct">${pct}<span>%</span></div><div class="cap">${n}/${total}</div></div>
+      </div>
+      <div class="hero-side">
+        <p class="hero-title">${msg}</p>
+        <div class="stat-row">
+          <div class="stat"><div class="n">${streak(p)} 🔥</div><div class="l">Racha de hábitos</div></div>
+          <div class="stat"><div class="n">${totalPoints(p).toLocaleString("es")}</div><div class="l">Puntos ★</div></div>
+        </div>
+      </div>
+    </div>`));
+
+  buildNudges(p,h).forEach(nd=>{
+    main.appendChild(el(`<div class="nudge"><span class="ic">${nd.ic}</span><p>${esc(nd.t)}</p></div>`));
+  });
+
+  // Agua
+  main.appendChild(el(`
+    <div class="card habit">
+      <div class="habit-head">
+        <div class="habit-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${IC.water}</svg></div>
+        <div class="habit-meta"><div class="habit-name">Tomar agua</div><div class="habit-goal">Meta: ${WATER_GOAL} L</div></div>
+        <div class="habit-val ${isDone(p,h,"water")?"done":""}">${(h.water||0).toFixed(2).replace(/\.?0+$/,"")} L</div>
+      </div>
+      <div class="stepper">
+        <button data-action="water" data-v="-0.25" aria-label="Quitar agua">−</button>
+        <div class="fill"><div class="bar"><i style="width:${Math.min(100,(h.water||0)/WATER_GOAL*100)}%"></i></div></div>
+        <button data-action="water" data-v="0.25" aria-label="Añadir agua">+</button>
+      </div>
+    </div>`));
+
+  // Checkboxes simples
+  const checks=[["sleep","Dormir bien","7 a 8 horas",IC.sleep],["read","Leer","Un rato hoy",IC.read]];
+  if(p==="miguel") checks.push(["creatina","Creatina","Dosis diaria",IC.creatina],["proteina","Proteína","Cumplir tus gramos",IC.proteina]);
+  checks.forEach(([k,name,goal,icon])=>{
+    main.appendChild(el(`
+      <div class="card">
+        <button class="check ${isDone(p,h,k)?"on":""}" data-action="toggle" data-h="${k}">
+          <span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${IC.check}</svg></span>
+          <span class="habit-meta"><span class="habit-name">${name}</span><br><span class="habit-goal">${goal}</span></span>
+          <span class="habit-ic" style="margin-left:auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icon}</svg></span>
+        </button>
+      </div>`));
+  });
+
+  // Pasos
+  main.appendChild(el(`
+    <div class="card habit">
+      <div class="habit-head">
+        <div class="habit-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${IC.steps}</svg></div>
+        <div class="habit-meta"><div class="habit-name">Pasos diarios</div><div class="habit-goal">Meta: ${STEP_GOAL.toLocaleString("es")}</div></div>
+        <div class="habit-val ${isDone(p,h,"steps")?"done":""}">${(h.steps||0).toLocaleString("es")}</div>
+      </div>
+      <div class="bar"><i style="width:${Math.min(100,(h.steps||0)/STEP_GOAL*100)}%"></i></div>
+      <div class="stepper">
+        <button class="wide" data-action="steps" data-v="-500">−500</button>
+        <input class="num-in" id="steps-in" type="number" inputmode="numeric" value="${h.steps||0}" min="0" step="100" aria-label="Pasos de hoy">
+        <button class="wide" data-action="steps" data-v="500">+500</button>
+      </div>
+    </div>`));
+}
+
+function renderGym(main){
+  const p=ui.profile, dow=TODAY.getDay(), r=ROUTINES[p][dow];
+
+  // Ciclo (solo Sofía)
+  let phase=null;
+  if(p==="sofia"){
+    phase=data.sofia.cycle[TKEY]||null;
+    const btns=Object.entries(PHASES).map(([nm,i])=>`
+      <button class="phase ${phase===nm?"on":""}" data-action="phase" data-name="${nm}">
+        <span class="pdot" style="background:${i.color}"></span>
+        <span class="pn">${nm}</span><span class="pd">${i.load}</span>
+      </button>`).join("");
+    const adv = phase ? `
+      <div class="advice">
+        <span class="tag">Fase ${phase.toLowerCase()}</span>
+        <p>${PHASES[phase].tip}</p>
+        <div class="adjust">
+          <div><div class="k">Reps</div><div class="v">Iguales</div></div>
+          <div><div class="k">Peso</div><div class="v">${PHASES[phase].load.replace("Peso ","")}</div></div>
+          <div><div class="k">Descanso</div><div class="v">${PHASES[phase].rest}</div></div>
+        </div>
+      </div>
+      <p class="disclaimer" style="margin-top:8px">Las repeticiones no cambian: lo que se ajusta es el peso y el descanso. Orientación general, no consejo médico.</p>` : "";
+    main.appendChild(el(`
+      <div class="card">
+        <p class="card-title">🌙 Ciclo menstrual</p>
+        <p class="card-sub" style="margin-bottom:11px">¿En qué fase estás hoy? Ajustamos la carga.</p>
+        <div class="phases">${btns}</div>${adv}
+      </div>`));
+  }
+
+  // Rutina del día
+  const exHTML=r.ex.map((e,i)=>{
+    const [name,scheme,tip]=e;
+    const nSets=parseInt((scheme.match(/^(\d+)×/)||[])[1]||0,10);
+    let dots="", allOn=nSets>0;
+    for(let s=0;s<nSets;s++){
+      const k=`${TKEY}|${i}|${s}`, on=!!data[p].gym[k];
+      if(!on) allOn=false;
+      dots+=`<button class="set-dot ${on?"on":""}" data-action="set" data-key="${k}" aria-label="Serie ${s+1}">${s+1}</button>`;
+    }
+    return `<div class="ex">
+      <div class="ex-top"><span class="ex-name ${allOn?"ex-done":""}">${esc(name)}</span><span class="ex-scheme">${esc(scheme)}</span></div>
+      ${tip?`<div class="ex-tip">${esc(tip)}</div>`:""}
+      ${nSets?`<div class="sets">${dots}</div>`:""}
+    </div>`;
+  }).join("");
+
+  main.appendChild(el(`
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:3px">
+        <span class="eyebrow">${cap(TODAY.toLocaleDateString("es-ES",{weekday:"long"}))}</span>
+        <span class="badge">${r.tag}</span>
+      </div>
+      <p class="card-title" style="font-size:19px;margin-bottom:11px">${r.title}</p>
+      ${r.lumbar?`<div class="note" style="margin-bottom:9px"><span>${LUMBAR_NOTE}</span></div>`:""}
+      ${(p==="miguel"&&!r.rest)?`<div class="note" style="margin-bottom:9px"><span>${HEAVY_NOTE}</span></div>`:""}
+      ${exHTML}
+    </div>`));
+
+  // Calendario de asistencia
+  main.appendChild(el(calendarHTML(p)));
+}
+
+function calendarHTML(p){
+  const y=TODAY.getFullYear(), mo=TODAY.getMonth();
+  const first=new Date(y,mo,1), days=new Date(y,mo+1,0).getDate();
+  const lead=(first.getDay()+6)%7;  // semana empieza en lunes
+  let cells="";
+  for(let i=0;i<lead;i++) cells+=`<div class="cal-cell void"></div>`;
+  let month=0;
+  for(let d=1;d<=days;d++){
+    const k=keyOf(new Date(y,mo,d)), on=wentToGym(p,k);
+    if(on) month++;
+    const isToday=k===TKEY, future=new Date(y,mo,d)>TODAY;
+    cells+=`<button class="cal-cell ${on?"on":""} ${isToday?"today":""} ${future?"future":""}" data-action="att" data-k="${k}">${d}</button>`;
+  }
+  const totalDays=Object.keys(data[p].att).filter(k=>data[p].att[k]).length
+    + Object.keys(data[p].gym).map(g=>g.split("|")[0]).filter((v,i,a)=>a.indexOf(v)===i && !data[p].att[v]).length;
+  return `<div class="card">
+    <div class="cal-head">
+      <div><p class="card-title">Días en el gym</p><p class="card-sub">${cap(TODAY.toLocaleDateString("es-ES",{month:"long"}))}: <b>${month}</b> días · Racha: <b>${gymStreak(p)}</b> 🔥</p></div>
+    </div>
+    <div class="cal-grid">
+      ${["L","M","X","J","V","S","D"].map(d=>`<div class="cal-dow">${d}</div>`).join("")}
+      ${cells}
+    </div>
+    <p class="disclaimer" style="margin-top:10px">Se marca solo cuando registras series. Toca un día para marcarlo o quitarlo a mano. Total acumulado: <b>${totalDays}</b> días.</p>
+  </div>`;
+}
+
+function renderTenis(main){
+  const s=tennisSession();
+  main.appendChild(el(`
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:3px">
+        <span class="eyebrow">Entrenamiento de hoy</span><span class="badge">1 hora</span>
+      </div>
+      <p class="card-title" style="font-size:19px;margin-bottom:9px">🎾 ${s.name}</p>
+      ${s.blocks.map(([m,n])=>`<div class="block"><span class="min">${m} min</span><span class="bn">${esc(n)}</span></div>`).join("")}
+      <p class="disclaimer" style="margin-top:10px">Hay 8 sesiones que van rotando cada domingo. La próxima semana cambia sola.</p>
+    </div>`));
+
+  const d=ui.tennisDraft;
+  if(d.date===undefined){
+    const sun=new Date(TODAY); sun.setDate(sun.getDate()-sun.getDay());
+    d.date=keyOf(sun); d.practiced=""; d.improve=""; d.feel=0;
+  }
+  const feelBtns=[["😕",1],["🙂",2],["😃",3],["🔥",4],["🏆",5]]
+    .map(([e,v])=>`<button type="button" data-action="feel" data-v="${v}" class="${d.feel==v?"on":""}">${e}</button>`).join("");
+
+  main.appendChild(el(`
+    <div class="card">
+      <p class="card-title">Registrar la sesión</p>
+      <p class="card-sub" style="margin-bottom:13px">Qué practicamos y qué mejorar.</p>
+      <div class="field"><label>Fecha</label><input type="date" id="t-date" value="${d.date}"></div>
+      <div class="field"><label>¿Qué practicamos?</label><textarea id="t-practiced" placeholder="Derecha cruzada, saque, voleas…">${esc(d.practiced)}</textarea></div>
+      <div class="field"><label>Sensación general</label><div class="feel">${feelBtns}</div></div>
+      <div class="field"><label>Áreas a mejorar</label><textarea id="t-improve" placeholder="Consistencia en el revés, colocación del saque…">${esc(d.improve)}</textarea></div>
+      <button class="btn-primary" data-action="tennis-save" ${(!d.practiced&&!d.improve)?"disabled":""}>Guardar sesión</button>
+    </div>`));
+
+  const list=[...data.tennis].sort((a,b)=>b.date.localeCompare(a.date));
+  if(!list.length){
+    main.appendChild(el(`<div class="card"><div class="empty">Aún no hay sesiones registradas.<br>Guarda la primera arriba 👆</div></div>`));
+  } else {
+    const fe={1:"😕",2:"🙂",3:"😃",4:"🔥",5:"🏆"};
+    const logs=list.map(x=>{
+      const dt=cap(new Date(x.date+"T12:00:00").toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long"}));
+      return `<div class="log">
+        <div class="log-top"><span class="log-date">${dt}</span>
+          <span><span style="font-size:16px">${fe[x.feel]||""}</span>
+          <button class="del" data-action="tennis-del" data-id="${x.id}">Borrar</button></span></div>
+        ${x.practiced?`<h4>Practicamos</h4><p>${esc(x.practiced)}</p>`:""}
+        ${x.improve?`<h4>A mejorar</h4><p>${esc(x.improve)}</p>`:""}
+      </div>`;
+    }).join("");
+    main.appendChild(el(`<div class="card"><p class="card-title" style="margin-bottom:5px">Historial</p>${logs}</div>`));
+  }
+}
+
+/* ---------------- Interacción ---------------- */
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-action]"); if(!t) return;
+  const a=t.dataset.action, p=ui.profile;
+
+  if(a==="profile"){ ui.profile=t.dataset.p; LS.write("dd_profile",ui.profile); render(); return; }
+  if(a==="tab"){ ui.tab=t.dataset.t; LS.write("dd_tab",ui.tab); render(); return; }
+  if(a==="photo"){ document.getElementById("photo-in").click(); return; }
+
+  if(a==="water"){ const h=todayHabit(p); h.water=Math.max(0,Math.round((h.water+parseFloat(t.dataset.v))*100)/100); saveProfile(p); after(p); render(); return; }
+  if(a==="toggle"){ const h=todayHabit(p); h[t.dataset.h]=!h[t.dataset.h]; saveProfile(p); after(p); render(); return; }
+  if(a==="steps"){ const h=todayHabit(p); h.steps=Math.max(0,(h.steps||0)+parseInt(t.dataset.v,10)); saveProfile(p); after(p); render(); return; }
+
+  if(a==="set"){ const g=data[p].gym,k=t.dataset.key; if(g[k]) delete g[k]; else g[k]=true; saveProfile(p); render(); return; }
+  if(a==="att"){ const k=t.dataset.k, on=wentToGym(p,k); if(on){ data[p].att[k]=false; Object.keys(data[p].gym).forEach(g=>{ if(g.startsWith(k+"|")) delete data[p].gym[g]; }); } else data[p].att[k]=true; saveProfile(p); render(); return; }
+  if(a==="phase"){ data.sofia.cycle[TKEY]=t.dataset.name; saveProfile("sofia"); render(); return; }
+  if(a==="feel"){ ui.tennisDraft.feel=parseInt(t.dataset.v,10); render(); return; }
+
+  if(a==="tennis-save"){
+    const d=ui.tennisDraft;
+    if(!d.practiced&&!d.improve) return;
+    data.tennis.push({id:Date.now().toString(36),date:d.date,practiced:d.practiced,improve:d.improve,feel:d.feel||3});
+    saveTennis(); ui.tennisDraft={}; render(); return;
+  }
+  if(a==="tennis-del"){ data.tennis=data.tennis.filter(x=>x.id!==t.dataset.id); saveTennis(); render(); return; }
+});
+
+document.addEventListener("input",e=>{
+  const id=e.target.id;
+  if(id==="steps-in"){ const h=todayHabit(ui.profile); h.steps=Math.max(0,parseInt(e.target.value||"0",10)); saveProfile(ui.profile); }
+  if(id==="t-date") ui.tennisDraft.date=e.target.value;
+  if(id==="t-practiced") ui.tennisDraft.practiced=e.target.value;
+  if(id==="t-improve") ui.tennisDraft.improve=e.target.value;
+});
+document.addEventListener("change",e=>{
+  if(e.target.id==="steps-in"){ after(ui.profile); render(); }
+  if(e.target.id==="photo-in"){
+    const f=e.target.files&&e.target.files[0]; if(!f) return;
+    const fr=new FileReader();
+    fr.onload=()=>{
+      const img=new Image();
+      img.onload=()=>{
+        const S=240, c=document.createElement("canvas"); c.width=S; c.height=S;
+        const ctx=c.getContext("2d");
+        const side=Math.min(img.width,img.height);
+        ctx.drawImage(img,(img.width-side)/2,(img.height-side)/2,side,side,0,0,S,S);
+        photos[ui.profile]=c.toDataURL("image/jpeg",0.82);
+        LS.write("dd_photo_"+ui.profile,photos[ui.profile]);
+        render();
+      };
+      img.src=fr.result;
+    };
+    fr.readAsDataURL(f);
+    e.target.value="";
+  }
+});
+
+/* ---------------- Celebración ---------------- */
+function after(p){
+  const h=todayHabit(p), key=p+TKEY;
+  if(dayFull(p,h)&&!ui.celebrated[key]){ ui.celebrated[key]=true; confetti(); }
+  if(!dayFull(p,h)) ui.celebrated[key]=false;
+}
+function confetti(){
+  if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const cv=document.getElementById("confetti"), ctx=cv.getContext("2d");
+  cv.width=innerWidth; cv.height=innerHeight;
+  const cols = ui.profile==="miguel"
+    ? ["#FFFFFF","#C9CBD2","#8C8C97","#E9E9EC"]
+    : ["#7A45E0","#D9599F","#B98CF5","#F0C2E0"];
+  const parts=[];
+  for(let i=0;i<90;i++) parts.push({x:innerWidth/2+(Math.random()-.5)*130,y:innerHeight*.32,
+    vx:(Math.random()-.5)*9,vy:Math.random()*-11-4,g:.35+Math.random()*.2,
+    s:5+Math.random()*6,c:cols[i%cols.length],r:Math.random()*6,vr:(Math.random()-.5)*.4});
+  let f=0;
+  (function loop(){
+    ctx.clearRect(0,0,cv.width,cv.height); f++;
+    parts.forEach(o=>{ o.vy+=o.g; o.x+=o.vx; o.y+=o.vy; o.r+=o.vr;
+      ctx.save(); ctx.translate(o.x,o.y); ctx.rotate(o.r); ctx.fillStyle=o.c;
+      ctx.fillRect(-o.s/2,-o.s/2,o.s,o.s*.6); ctx.restore(); });
+    if(f<95) requestAnimationFrame(loop); else ctx.clearRect(0,0,cv.width,cv.height);
+  })();
+}
+
+/* ---------------- Arranque ---------------- */
+loadLocal();
+render();
+initDB();
+// Si la app queda abierta y cambia la hora, los avisos se refrescan.
+setInterval(()=>{ if(ui.tab==="hoy" && NOW.getHours()!==new Date().getHours()){ NOW.setTime(Date.now()); render(); } },60000);
+</script>
