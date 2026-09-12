@@ -171,6 +171,32 @@
   .check.on .box { background:var(--accent); border-color:var(--accent); }
   .check.on .box svg { opacity:1; transform:scale(1); }
 
+  /* ---------- Cardio ---------- */
+  .acts { display:flex; flex-wrap:wrap; gap:7px; }
+  .act {
+    border:1.5px solid var(--line); background:var(--surface-2); color:var(--text);
+    border-radius:999px; padding:9px 14px; font-size:13.5px; font-weight:600; transition:all .15s ease;
+  }
+  .act.on { background:var(--accent); border-color:var(--accent); color:var(--on-accent); }
+  .pickrow { display:flex; align-items:center; gap:9px; background:var(--surface-2); border-radius:var(--radius-sm); padding:11px; }
+  .pickrow button.mn {
+    flex:0 0 auto; width:44px; height:44px; border-radius:12px; border:1px solid var(--line);
+    background:var(--surface); color:var(--text); font-family:var(--ff-mono); font-size:14px; font-weight:700;
+  }
+  .pickval { flex:1; text-align:center; min-width:0; }
+  .pickval .pv { font-family:var(--ff-mono); font-weight:700; font-size:18px; line-height:1.1; }
+  .pickval .pk { font-size:11.5px; color:var(--muted); }
+  .pickrow .add { flex:0 0 auto; border:0; background:var(--accent); color:var(--on-accent); font-weight:700; font-size:14px; padding:0 16px; height:44px; border-radius:12px; }
+  .centry { display:flex; align-items:center; gap:10px; padding:10px 0; border-top:1px solid var(--line); font-size:14.5px; }
+  .centry .cm { color:var(--muted); font-size:13px; }
+  .centry .ck { margin-left:auto; font-family:var(--ff-mono); font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums; }
+  .centry .cx { background:transparent; border:0; color:var(--faint); font-size:17px; padding:0 2px; line-height:1; }
+  .wrow { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:13px; padding-top:13px; border-top:1px solid var(--line); font-size:13px; color:var(--muted); }
+  .wrow input {
+    width:78px; font-family:var(--ff-mono); font-weight:700; font-size:15px; text-align:center;
+    padding:8px 4px; border-radius:10px; border:1px solid var(--line); background:var(--surface-2); color:var(--text);
+  }
+
   /* ---------- Gym ---------- */
   .badge { display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:700; padding:5px 11px; border-radius:999px; background:var(--accent-soft); color:var(--accent); letter-spacing:.03em; }
   .note { display:flex; gap:9px; align-items:flex-start; background:var(--surface-2); border-radius:var(--radius-sm); padding:12px 13px; font-size:13.5px; color:var(--muted); border-left:3px solid var(--warn); }
@@ -355,13 +381,30 @@ const IC = {
   steps:'<path d="M4 20h5v-2.5a3.5 3.5 0 1 0-5 0z"/><path d="M15 12h5V9.5a3.5 3.5 0 1 0-5 0z"/><path d="M9 17.5c0-2 1-3.5 1-6"/><path d="M20 9.5c0 2-1 3.5-1 6"/>',
   creatina:'<path d="m13 2-9 12h7l-1 8 9-12h-7z"/>',
   proteina:'<path d="M12 2a5 5 0 0 0-5 5v1H6a2 2 0 0 0-2 2l1 10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2l1-10a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5z"/><path d="M9 13h6"/>',
+  cardio:'<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
   check:'<path d="M20 6 9 17l-5-5"/>',
   cam:'<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/>'
 };
 
+/* Cardio: meta diaria de calorías y actividades con su MET
+   (equivalente metabólico, del compendio estándar de actividad física).
+   kcal = MET × 3.5 × peso(kg) ÷ 200 × minutos                        */
+const CARDIO_GOAL = { miguel:300, sofia:250 };
+const ACTIVITIES = [
+  ["caminar",  "Caminar",        3.5],
+  ["rapido",   "Caminar rápido", 5.0],
+  ["trotar",   "Trotar",         8.0],
+  ["correr",   "Correr",        11.0],
+  ["bici",     "Bicicleta",      7.0],
+  ["eliptica", "Elíptica",       5.5],
+  ["tenis",    "Tenis",          7.3],
+  ["escaleras","Escaleras",      8.0],
+  ["otro",     "Otro",           0  ]
+];
+
 const HABITS = {
-  miguel: ["water","sleep","read","steps","creatina","proteina"],
-  sofia:  ["water","sleep","read","steps"]
+  miguel: ["water","sleep","read","cardio","creatina","proteina"],
+  sofia:  ["water","sleep","read","cardio"]
 };
 
 /* ---------------- Rutinas ----------------
@@ -479,9 +522,9 @@ const TENNIS = [
 const TENNIS_ANCHOR = new Date(2026,0,4);
 
 /* ---------------- Estado ---------------- */
-function blankProfile(){ return { habits:{}, gym:{}, cycle:{}, att:{} }; }
+function blankProfile(){ return { habits:{}, gym:{}, cycle:{}, att:{}, cardio:{}, weight:70 }; }
 let data = { miguel: blankProfile(), sofia: blankProfile(), tennis: [] };
-let ui = { profile:"miguel", tab:"hoy", tennisDraft:{}, celebrated:{} };
+let ui = { profile:"miguel", tab:"hoy", tennisDraft:{}, celebrated:{}, cardioPick:null, cardioMin:20, cardioKcal:200 };
 let photos = { miguel:null, sofia:null };
 
 let NOW = new Date();
@@ -503,7 +546,11 @@ function loadLocal(){
   ui.profile  = LS.read("dd_profile","miguel");
   ui.tab      = LS.read("dd_tab","hoy");
   if(ui.profile==="ella") ui.profile="sofia";
-  ["miguel","sofia"].forEach(p=>{ const d=data[p]; d.habits=d.habits||{}; d.gym=d.gym||{}; d.cycle=d.cycle||{}; d.att=d.att||{}; });
+  ["miguel","sofia"].forEach(p=>{
+    const d=data[p];
+    d.habits=d.habits||{}; d.gym=d.gym||{}; d.cycle=d.cycle||{}; d.att=d.att||{};
+    d.cardio=d.cardio||{}; d.weight=d.weight||70;
+  });
   photos.miguel = LS.read("dd_photo_miguel", null);
   photos.sofia  = LS.read("dd_photo_sofia", null);
 }
@@ -516,9 +563,17 @@ function todayHabit(p){
   if(!h[TKEY]) h[TKEY]={water:0,sleep:false,read:false,steps:0,creatina:false,proteina:false};
   return h[TKEY];
 }
+/* ----- Cardio ----- */
+function cardioList(p){ return data[p].cardio[TKEY] || []; }
+function cardioKcal(p){ return Math.round(cardioList(p).reduce((s,e)=>s+(e.kcal||0),0)); }
+function cardioMin(p){ return cardioList(p).reduce((s,e)=>s+(e.min||0),0); }
+function kcalFor(p,met,min){ return Math.round(met*3.5*(data[p].weight||70)/200*min); }
+function actName(id){ const a=ACTIVITIES.find(x=>x[0]===id); return a?a[1]:id; }
+
 function isDone(p,h,k){
-  if(k==="water") return (h.water||0)>=WATER_GOAL;
-  if(k==="steps") return (h.steps||0)>=STEP_GOAL;
+  if(k==="water")  return (h.water||0)>=WATER_GOAL;
+  if(k==="steps")  return (h.steps||0)>=STEP_GOAL;
+  if(k==="cardio") return cardioKcal(p)>=CARDIO_GOAL[p];
   return !!h[k];
 }
 function doneCount(p,h){ return HABITS[p].filter(k=>isDone(p,h,k)).length; }
@@ -554,15 +609,17 @@ function buildNudges(p,h){
   const dow=TODAY.getDay(), routine=ROUTINES[p][dow];
   if(dayFull(p,h)) return [{ic:"🏆",t:"Día completo. Todo cumplido — descansa bien, mañana se repite."}];
   if(hr>=20 && !isDone(p,h,"read")) out.push({ic:"📖",t:"Se está haciendo tarde para leer. Con 10 minutos ya cuenta."});
-  if(hr>=17 && !isDone(p,h,"steps")){
-    const f=STEP_GOAL-(h.steps||0);
-    out.push({ic:"🚶",t:`Te faltan ${f.toLocaleString("es")} pasos. Una caminata de 20 minutos los cierra.`});
+  if(hr>=17 && !isDone(p,h,"cardio")){
+    const falta=CARDIO_GOAL[p]-cardioKcal(p);
+    const cam=Math.ceil(falta/Math.max(1,kcalFor(p,5.0,1)));
+    const tro=Math.ceil(falta/Math.max(1,kcalFor(p,8.0,1)));
+    out.push({ic:"🏃",t:`Te faltan ${falta} kcal de cardio: unos ${cam} min de caminata rápida o ${tro} de trote.`});
   }
   if(hr>=20 && !isDone(p,h,"water")) out.push({ic:"💧",t:`Te falta agua: ${(WATER_GOAL-(h.water||0)).toFixed(2).replace(/\.?0+$/,"")} L para la meta.`});
   if(p==="miguel" && hr>=12 && !h.creatina) out.push({ic:"⚡",t:"No olvides la creatina de hoy."});
   if(p==="miguel" && hr>=19 && !h.proteina) out.push({ic:"🥩",t:"Revisa si cerraste tus gramos de proteína."});
   if(!routine.rest && hr>=16 && !wentToGym(p,TKEY)) out.push({ic:"🏋️",t:`Todavía no registras el entreno: hoy toca ${routine.title}.`});
-  if(routine.rest && dow===3 && hr>=16 && !isDone(p,h,"steps")) out.push({ic:"🚴",t:"Hoy es descanso activo: cardio suave o una caminata larga."});
+  if(routine.rest && dow===3 && hr>=16 && !isDone(p,h,"cardio")) out.push({ic:"🚴",t:"Hoy es descanso activo: buen día para cardio suave o una caminata larga."});
   if(hr<10 && !out.length) out.push({ic:"🌅",t:"Arranca el día. El primer hábito es el que empuja a los demás."});
   if(hr>=22 && !isDone(p,h,"sleep")) out.push({ic:"🌙",t:"Hora de cerrar el día. Apunta a 7-8 horas."});
   return out.slice(0,2);
@@ -656,19 +713,54 @@ function renderHoy(main){
       </div>`));
   });
 
+  // ----- Cardio y calorías -----
+  const goal=CARDIO_GOAL[p], kcal=cardioKcal(p), mins=cardioMin(p);
+  const chips = ACTIVITIES.map(([id,label])=>
+    `<button class="act ${ui.cardioPick===id?"on":""}" data-action="cpick" data-id="${id}">${label}</button>`).join("");
+
+  let picker="";
+  if(ui.cardioPick==="otro"){
+    picker=`<div class="pickrow">
+      <div class="pickval"><div class="pv"><input class="wrow-kcal" id="ckcal-in" type="number" inputmode="numeric" value="${ui.cardioKcal}" min="0" step="10" style="width:92px;font-family:var(--ff-mono);font-weight:700;font-size:17px;text-align:center;padding:8px 4px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--text)" onfocus="this.select()"> kcal</div><div class="pk">Escribe las calorías que marcó la máquina</div></div>
+      <button class="add" data-action="cadd">Añadir</button>
+    </div>`;
+  } else if(ui.cardioPick){
+    const met=ACTIVITIES.find(a=>a[0]===ui.cardioPick)[2];
+    picker=`<div class="pickrow">
+      <button class="mn" data-action="cmin" data-v="-5">−5</button>
+      <div class="pickval"><div class="pv">${ui.cardioMin} min</div><div class="pk">≈ ${kcalFor(p,met,ui.cardioMin)} kcal · ${actName(ui.cardioPick)}</div></div>
+      <button class="mn" data-action="cmin" data-v="5">+5</button>
+      <button class="add" data-action="cadd">Añadir</button>
+    </div>`;
+  }
+
+  const entries = cardioList(p).map(e=>`
+    <div class="centry">
+      <span>${esc(actName(e.act))}</span>
+      ${e.min?`<span class="cm">${e.min} min</span>`:""}
+      <span class="ck">${e.kcal} kcal</span>
+      <button class="cx" data-action="cdel" data-id="${e.id}" aria-label="Borrar">×</button>
+    </div>`).join("");
+
   main.appendChild(el(`
     <div class="card habit">
       <div class="habit-head">
-        <div class="habit-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${IC.steps}</svg></div>
-        <div class="habit-meta"><div class="habit-name">Pasos diarios</div><div class="habit-goal">Meta: ${STEP_GOAL.toLocaleString("es")}</div></div>
-        <div class="habit-val ${isDone(p,h,"steps")?"done":""}">${(h.steps||0).toLocaleString("es")}</div>
+        <div class="habit-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${IC.cardio}</svg></div>
+        <div class="habit-meta"><div class="habit-name">Cardio</div><div class="habit-goal">Meta: ${goal} kcal${mins?` · ${mins} min hoy`:""}</div></div>
+        <div class="habit-val ${isDone(p,h,"cardio")?"done":""}">${kcal} kcal</div>
       </div>
-      <div class="bar"><i style="width:${Math.min(100,(h.steps||0)/STEP_GOAL*100)}%"></i></div>
-      <div class="stepper">
-        <button class="wide" data-action="steps" data-v="-500">−500</button>
-        <input class="num-in" id="steps-in" type="number" inputmode="numeric" value="${h.steps||0}" min="0" step="100" aria-label="Pasos de hoy" onfocus="this.select()">
-        <button class="wide" data-action="steps" data-v="500">+500</button>
+      <div class="bar"><i style="width:${Math.min(100,kcal/goal*100)}%"></i></div>
+      <div class="acts">${chips}</div>
+      ${picker}
+      ${entries}
+      <div class="wrow">
+        <span>Tu peso</span>
+        <input id="weight-in" type="number" inputmode="numeric" value="${data[p].weight||70}" min="30" max="200" aria-label="Peso en kilos" onfocus="this.select()">
+        <span>kg</span>
+        <span style="margin-left:auto">Pasos (opcional)</span>
+        <input id="steps-in" type="number" inputmode="numeric" value="${h.steps||0}" min="0" step="500" aria-label="Pasos de hoy" onfocus="this.select()">
       </div>
+      <p class="disclaimer" style="margin-top:9px">Las calorías son una estimación a partir de tu peso y la intensidad de cada actividad.</p>
     </div>`));
 }
 
@@ -819,7 +911,29 @@ document.addEventListener("click",e=>{
 
   if(a==="water"){ const h=todayHabit(p); h.water=Math.max(0,Math.round((h.water+parseFloat(t.dataset.v))*100)/100); saveProfile(p); after(p); render(); return; }
   if(a==="toggle"){ const h=todayHabit(p); h[t.dataset.h]=!h[t.dataset.h]; saveProfile(p); after(p); render(); return; }
-  if(a==="steps"){ const h=todayHabit(p); h.steps=Math.max(0,(h.steps||0)+parseInt(t.dataset.v,10)); saveProfile(p); after(p); render(); return; }
+  if(a==="cpick"){ ui.cardioPick = (ui.cardioPick===t.dataset.id) ? null : t.dataset.id; render(); return; }
+  if(a==="cmin"){ ui.cardioMin = Math.max(5, ui.cardioMin + parseInt(t.dataset.v,10)); render(); return; }
+  if(a==="cadd"){
+    const id=ui.cardioPick; if(!id) return;
+    let entry;
+    if(id==="otro"){
+      const k=Math.max(0, parseInt(ui.cardioKcal,10)||0);
+      if(!k) return;
+      entry={id:Date.now().toString(36), act:"otro", min:0, kcal:k};
+    } else {
+      const met=ACTIVITIES.find(x=>x[0]===id)[2];
+      entry={id:Date.now().toString(36), act:id, min:ui.cardioMin, kcal:kcalFor(p,met,ui.cardioMin)};
+    }
+    if(!data[p].cardio[TKEY]) data[p].cardio[TKEY]=[];
+    data[p].cardio[TKEY].push(entry);
+    ui.cardioPick=null;
+    saveProfile(p); after(p); render(); return;
+  }
+  if(a==="cdel"){
+    const l=data[p].cardio[TKEY]||[];
+    data[p].cardio[TKEY]=l.filter(x=>x.id!==t.dataset.id);
+    saveProfile(p); after(p); render(); return;
+  }
 
   if(a==="set"){ const g=data[p].gym,k=t.dataset.key; if(g[k]) delete g[k]; else g[k]=true; saveProfile(p); render(); return; }
   if(a==="att"){
@@ -843,12 +957,14 @@ document.addEventListener("click",e=>{
 document.addEventListener("input",e=>{
   const id=e.target.id;
   if(id==="steps-in"){ const h=todayHabit(ui.profile); h.steps=Math.max(0,parseInt(e.target.value||"0",10)); saveProfile(ui.profile); }
+  if(id==="weight-in"){ const w=parseInt(e.target.value||"0",10); if(w>=30&&w<=200){ data[ui.profile].weight=w; saveProfile(ui.profile); } }
+  if(id==="ckcal-in"){ ui.cardioKcal=Math.max(0,parseInt(e.target.value||"0",10)); }
   if(id==="t-date") ui.tennisDraft.date=e.target.value;
   if(id==="t-practiced") ui.tennisDraft.practiced=e.target.value;
   if(id==="t-improve") ui.tennisDraft.improve=e.target.value;
 });
 document.addEventListener("change",e=>{
-  if(e.target.id==="steps-in"){ after(ui.profile); render(); }
+  if(e.target.id==="steps-in" || e.target.id==="weight-in"){ after(ui.profile); render(); }
   if(e.target.id==="photo-in"){
     const f=e.target.files&&e.target.files[0]; if(!f) return;
     const fr=new FileReader();
