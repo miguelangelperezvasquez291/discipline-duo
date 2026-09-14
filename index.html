@@ -177,6 +177,8 @@
   /* ---------- Portugués ---------- */
   .ptask { padding:12px 0 0; margin-top:12px; border-top:1px solid var(--line); align-items:flex-start; }
   .ptask .box { margin-top:1px; }
+  .ref { margin:12px 0 0; background:var(--surface-2); border-radius:var(--radius-sm); padding:12px 13px; font-size:12px; color:var(--muted); line-height:1.55; }
+  .ref b { color:var(--text); font-weight:600; }
   .exam { display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin-top:14px; padding-top:13px; border-top:1px solid var(--line); font-size:13px; color:var(--muted); }
   .exam input {
     font-family:var(--ff-mono); font-weight:700; font-size:14px; color:var(--text);
@@ -431,36 +433,44 @@ const MOBILITY = ["Gato-camello ×10","Rotación de cadera ×10","Círculos de h
 const PT_EXAM_DEFAULT = "2026-11-24";   // primer día de la ventana: 24-27 nov 2026
 const PT_EXAM_OLD     = "2026-11-15";   // marcador de posición anterior, se corrige solo
 const PT_TARGET = "Meta: Intermediário Superior (B2) · mínimo para graduarte: Intermediário (B1)";
-const CELPE_NOTE = "<b>Regla de oro del Celpe-Bras:</b> antes de escribir responde siempre — ¿quién escribe?, ¿a quién?, ¿para qué? y ¿en qué género? La adecuación al contexto pesa tanto como la corrección del idioma.";
+const CELPE_NOTE = "<b>Antes de escribir, siempre:</b> ¿quién eres? (enunciador) · ¿a quién le escribes? (interlocutor) · ¿para qué? (propósito) · ¿en qué género? Equivocarte aquí cuesta más que un error de gramática.";
+const CELPE_REF = "<b>Parte escrita · 3 h:</b> Tarefa 1 video 30 min · Tarefa 2 audio 30 min · Tarefas 3 y 4 texto 45 min cada una. El video y el audio se reproducen <b>dos veces</b>. Máximo <b>30 líneas</b> en una hoja A4: lo que escribas fuera no se corrige. Bolígrafo negro y cada tarefa en su hoja.<br><b>Parte oral · 20 min:</b> 5 min de entrevista personal + 3 elementos provocadores de 5 min.";
+
+/* Los 10 temas de los elementos provocadores y los 3 géneros que
+   trabaja la clase. Rotan a diario para no repetir siempre lo mismo. */
+const PT_THEMES = ["turismo, viajes y ciudades","alimentación y nutrición","familia y relaciones",
+  "trabajo","salud y bienestar","medio ambiente y ecología","educación",
+  "ciencia y tecnología","economía, comercio y negocios","cultura brasileña"];
+const PT_GENRES = ["carta o correo","artículo","propaganda o publicidad"];
 const PT_PLAN = {
-  1:{focus:"Tarefa a partir de video", tasks:[
-    ["Ver un noticiero o reportaje brasileño tomando notas","20 min · anota ideas y datos, no palabras sueltas"],
-    ["Escribir una tarefa a partir de ese video","25 min · fija género, destinatario y propósito antes de empezar"],
-    ["Releer y verificar que cumple el género pedido","10 min"]]},
-  2:{focus:"Clase + producción oral", clase:true, tasks:[
+  1:{focus:"Tarefa 1 · video", tasks:[
+    ["Ver un video brasileño dos veces, tomando notas","como en la prueba: solo dos pasadas"],
+    ["Escribir la tarefa en 30 min, máximo 30 líneas","género de hoy: %GEN%"],
+    ["Contar las líneas y revisar enunciador, interlocutor y propósito","5 min"]]},
+  2:{focus:"Clase + parte oral", clase:true, tasks:[
     ["Repasar los apuntes de la clase de hoy","10 min · el mismo día, no mañana"],
-    ["Hablar 5 min sobre una imagen, grabándote","10 min · igual que el Elemento Provocador de la parte oral"],
+    ["Hablar 5 min grabándote, como un elemento provocador","tema de hoy: %TEMA%"],
     ["Escucharte y anotar 3 fallos que se repiten","5 min"]]},
-  3:{focus:"Clase + tarefa a partir de audio", clase:true, tasks:[
+  3:{focus:"Tarefa 2 · audio", clase:true, tasks:[
     ["Repasar los apuntes de la clase de hoy","10 min"],
-    ["Escuchar un podcast o audio brasileño tomando notas","15 min · sin imagen, como la Tarefa II"],
-    ["Escribir una tarefa corta a partir de ese audio","20 min"]]},
-  4:{focus:"Clase + tarefa a partir de texto", clase:true, tasks:[
+    ["Escuchar un audio brasileño dos veces, sin imagen","lo más difícil: no hay gestos donde agarrarse"],
+    ["Escribir la tarefa en 30 min, máximo 30 líneas","género de hoy: %GEN%"]]},
+  4:{focus:"Tarefas 3 y 4 · texto", clase:true, tasks:[
     ["Repasar los apuntes de la clase de hoy","10 min"],
-    ["Leer un texto brasileño y escribir una tarefa a partir de él","25 min · carta, correo, artículo, informe…"],
-    ["Revisar: ¿quién escribe, a quién y para qué?","5 min"]]},
+    ["Leer un texto brasileño y escribir la tarefa en 45 min","máximo 30 líneas · género: %GEN%"],
+    ["Revisar: ¿quién eres, a quién escribes y para qué?","5 min"]]},
   5:{focus:"Prova anterior", tasks:[
-    ["Hacer una tarefa completa de una prueba anterior, con reloj","30 min"],
+    ["Hacer una tarefa de una prueba anterior con reloj","respeta el tiempo real: 30 o 45 min"],
     ["Compararla con el modelo y anotar qué faltó","15 min"],
-    ["Pasar las palabras que te faltaron al vocabulario","5 min"]]},
-  6:{focus:"Inmersión", tasks:[
+    ["Repasar la gramática floja de la semana","15 min · subjuntivo, oblíquos, tempos compostos…"]]},
+  6:{focus:"Inmersión + oral", tasks:[
     ["Película o serie brasileña","40 min · sin subtítulos en español"],
-    ["Resumirla hablando 3 min, grabándote","5 min"],
+    ["Hablar 5 min grabándote sobre el tema de hoy","tema: %TEMA%"],
     ["Anotar 10 expresiones nuevas","5 min"]]},
-  0:{focus:"Simulacro y repaso", tasks:[
-    ["Simulacro: parte escrita completa de una prueba anterior","45 min · con reloj"],
+  0:{focus:"Simulacro", tasks:[
+    ["Simulacro: dos tarefas seguidas con reloj","75 min · como en el examen real"],
     ["Repasar el vocabulario de toda la semana","15 min"],
-    ["Anotar qué mejoró y cuál es el punto flojo de la semana","5 min"]]}
+    ["Completar y practicar tu Parte pessoal","10 min · las respuestas de la entrevista"]]}
 };
 
 const HABITS = {
@@ -852,10 +862,13 @@ function renderHoy(main){
   // ----- Portugués (solo Miguel) -----
   if(p==="miguel"){
     const plan=ptPlan(), dias=daysToExam(p);
+    const d0=dayOfYear(TODAY);
+    const tema=PT_THEMES[d0%PT_THEMES.length], genero=PT_GENRES[d0%PT_GENRES.length];
+    const fill=s=>s.replace("%TEMA%",tema).replace("%GEN%",genero);
     const tasks=plan.tasks.map(([label,detail],i)=>`
       <button class="check ptask ${ptDone(p,i)?"on":""}" data-action="pt" data-i="${i}">
         <span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${IC.check}</svg></span>
-        <span class="habit-meta"><span class="habit-name">${esc(label)}</span><br><span class="habit-goal">${esc(detail)}</span></span>
+        <span class="habit-meta"><span class="habit-name">${esc(label)}</span><br><span class="habit-goal">${esc(fill(detail))}</span></span>
       </button>`).join("");
     main.appendChild(el(`
       <div class="card">
@@ -873,6 +886,7 @@ function renderHoy(main){
         <p class="disclaimer" style="margin:9px 0 0">${PT_TARGET}</p>
         ${tasks}
         <div class="note" style="margin-top:14px"><span>${CELPE_NOTE}</span></div>
+        <p class="ref">${CELPE_REF}</p>
         <div class="exam"><span>Fecha del examen</span><input type="date" id="exam-in" value="${data[p].exam}"></div>
       </div>`));
   }
