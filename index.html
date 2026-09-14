@@ -428,7 +428,9 @@ const MOBILITY = ["Gato-camello ×10","Rotación de cadera ×10","Círculos de h
    definidos. La parte oral son ~20 min con Elementos Provocadores.
    Por eso el plan gira en torno a producir, no a rellenar huecos.
    Martes, miércoles y jueves hay clase: ese día se repasa el mismo día. */
-const PT_EXAM_DEFAULT = "2026-11-15";
+const PT_EXAM_DEFAULT = "2026-11-24";   // primer día de la ventana: 24-27 nov 2026
+const PT_EXAM_OLD     = "2026-11-15";   // marcador de posición anterior, se corrige solo
+const PT_TARGET = "Meta: Intermediário Superior (B2) · mínimo para graduarte: Intermediário (B1)";
 const CELPE_NOTE = "<b>Regla de oro del Celpe-Bras:</b> antes de escribir responde siempre — ¿quién escribe?, ¿a quién?, ¿para qué? y ¿en qué género? La adecuación al contexto pesa tanto como la corrección del idioma.";
 const PT_PLAN = {
   1:{focus:"Tarefa a partir de video", tasks:[
@@ -439,10 +441,10 @@ const PT_PLAN = {
     ["Repasar los apuntes de la clase de hoy","10 min · el mismo día, no mañana"],
     ["Hablar 5 min sobre una imagen, grabándote","10 min · igual que el Elemento Provocador de la parte oral"],
     ["Escucharte y anotar 3 fallos que se repiten","5 min"]]},
-  3:{focus:"Clase + escucha brasileña", clase:true, tasks:[
+  3:{focus:"Clase + tarefa a partir de audio", clase:true, tasks:[
     ["Repasar los apuntes de la clase de hoy","10 min"],
-    ["Serie o YouTube brasileño con subtítulos en portugués","20 min"],
-    ["Anotar 5 expresiones del día a día y repetirlas en voz alta","5 min"]]},
+    ["Escuchar un podcast o audio brasileño tomando notas","15 min · sin imagen, como la Tarefa II"],
+    ["Escribir una tarefa corta a partir de ese audio","20 min"]]},
   4:{focus:"Clase + tarefa a partir de texto", clase:true, tasks:[
     ["Repasar los apuntes de la clase de hoy","10 min"],
     ["Leer un texto brasileño y escribir una tarefa a partir de él","25 min · carta, correo, artículo, informe…"],
@@ -610,6 +612,7 @@ function loadLocal(){
     d.habits=d.habits||{}; d.gym=d.gym||{}; d.cycle=d.cycle||{}; d.att=d.att||{};
     d.cardio=d.cardio||{}; d.weight=d.weight||70;
     d.pt=d.pt||{}; d.exam=d.exam||PT_EXAM_DEFAULT;
+    if(d.exam===PT_EXAM_OLD) d.exam=PT_EXAM_DEFAULT;   // corrige el marcador de posición
   });
   photos.miguel = LS.read("dd_photo_miguel", null);
   photos.sofia  = LS.read("dd_photo_sofia", null);
@@ -867,6 +870,7 @@ function renderHoy(main){
             <div class="habit-goal">${plan.clase?"Hoy tienes clase: lo que veas hoy, repásalo hoy":"Día sin clase"}</div>
           </div>
         </div>
+        <p class="disclaimer" style="margin:9px 0 0">${PT_TARGET}</p>
         ${tasks}
         <div class="note" style="margin-top:14px"><span>${CELPE_NOTE}</span></div>
         <div class="exam"><span>Fecha del examen</span><input type="date" id="exam-in" value="${data[p].exam}"></div>
