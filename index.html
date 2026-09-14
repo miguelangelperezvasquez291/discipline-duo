@@ -171,6 +171,18 @@
   .check.on .box { background:var(--accent); border-color:var(--accent); }
   .check.on .box svg { opacity:1; transform:scale(1); }
 
+  /* ---------- Rutina corta bajo un hábito ---------- */
+  .routine { margin:10px 0 0; padding-top:10px; border-top:1px solid var(--line); font-size:12.5px; color:var(--muted); line-height:1.5; }
+
+  /* ---------- Portugués ---------- */
+  .ptask { padding:12px 0 0; margin-top:12px; border-top:1px solid var(--line); align-items:flex-start; }
+  .ptask .box { margin-top:1px; }
+  .exam { display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin-top:14px; padding-top:13px; border-top:1px solid var(--line); font-size:13px; color:var(--muted); }
+  .exam input {
+    font-family:var(--ff-mono); font-weight:700; font-size:14px; color:var(--text);
+    padding:8px 10px; border-radius:10px; border:1px solid var(--line); background:var(--surface-2);
+  }
+
   /* ---------- Cardio ---------- */
   .acts { display:flex; flex-wrap:wrap; gap:7px; }
   .act {
@@ -382,6 +394,8 @@ const IC = {
   creatina:'<path d="m13 2-9 12h7l-1 8 9-12h-7z"/>',
   proteina:'<path d="M12 2a5 5 0 0 0-5 5v1H6a2 2 0 0 0-2 2l1 10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2l1-10a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5z"/><path d="M9 13h6"/>',
   cardio:'<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
+  movilidad:'<path d="M12 2v7"/><path d="m4.9 9.9 1.4 1.4"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m17.7 11.3 1.4-1.4"/><path d="M8 18a4 4 0 0 1 8 0"/><path d="M2 22h20"/>',
+  lang:'<circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/>',
   check:'<path d="M20 6 9 17l-5-5"/>',
   cam:'<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/>'
 };
@@ -402,9 +416,51 @@ const ACTIVITIES = [
   ["otro",     "Otro",           0  ]
 ];
 
+/* Movilidad al despertar: rutina corta, articulación por articulación,
+   de la columna hacia afuera.                                          */
+const MOBILITY = ["Gato-camello ×10","Rotación de cadera ×10","Círculos de hombro ×10",
+                  "Estiramiento de isquiotibiales 30 s","Estiramiento de psoas 30 s por lado"];
+
+/* Portugués: plan diario hasta el examen. Las clases son martes,
+   miércoles y jueves, así que esos días el peso está en consolidar lo
+   visto en clase el mismo día (repaso espaciado), y el resto de la
+   semana rota entre vocabulario, escucha, gramática, producción
+   escrita, inmersión y simulacro.                                      */
+const PT_EXAM_DEFAULT = "2026-11-15";
+const PT_PLAN = {
+  1:{focus:"Vocabulario y escucha", tasks:[
+    ["Repasar 20 palabras en voz alta","15 min · dilas, no solo las leas"],
+    ["Podcast en portugués","20 min · mientras caminas o entrenas"],
+    ["Escribir 5 frases con las palabras nuevas","10 min"]]},
+  2:{focus:"Clase · consolidar", clase:true, tasks:[
+    ["Repasar los apuntes de la clase de hoy","10 min · el mismo día, no mañana"],
+    ["Leer un texto en voz alta grabándote","15 min · luego escúchate"],
+    ["Anotar 10 palabras nuevas de la clase","5 min"]]},
+  3:{focus:"Clase · escucha real", clase:true, tasks:[
+    ["Repasar los apuntes de la clase de hoy","10 min"],
+    ["Serie o YouTube en portugués","20 min · subtítulos en portugués, no en español"],
+    ["Anotar 5 expresiones y repetirlas en voz alta","5 min"]]},
+  4:{focus:"Clase · escritura", clase:true, tasks:[
+    ["Repasar los apuntes de la clase de hoy","10 min"],
+    ["Escribir 100-150 palabras sobre tu día","15 min"],
+    ["Releerlo en voz alta y corregir lo que suene raro","5 min"]]},
+  5:{focus:"Gramática", tasks:[
+    ["Ejercicios del tema más flojo de la semana","25 min"],
+    ["Leer un artículo de noticias en portugués","15 min"],
+    ["Resumirlo en 3 frases, en portugués","5 min"]]},
+  6:{focus:"Inmersión", tasks:[
+    ["Película, serie o video largo en portugués","40 min"],
+    ["Grabarte hablando 2 min sobre lo que viste","5 min"],
+    ["Escucharte y anotar 3 cosas a mejorar","5 min"]]},
+  0:{focus:"Repaso y simulacro", tasks:[
+    ["Repasar todo el vocabulario de la semana","20 min"],
+    ["Simulacro tipo examen: lectura + preguntas","20 min"],
+    ["Anotar qué mejoró y qué falta","5 min"]]}
+};
+
 const HABITS = {
-  miguel: ["water","sleep","read","cardio","creatina","proteina"],
-  sofia:  ["water","sleep","read","cardio"]
+  miguel: ["water","sleep","read","cardio","creatina","proteina","movilidad","portugues"],
+  sofia:  ["water","sleep","read","cardio","movilidad"]
 };
 
 /* ---------------- Rutinas ----------------
@@ -522,7 +578,7 @@ const TENNIS = [
 const TENNIS_ANCHOR = new Date(2026,0,4);
 
 /* ---------------- Estado ---------------- */
-function blankProfile(){ return { habits:{}, gym:{}, cycle:{}, att:{}, cardio:{}, weight:70 }; }
+function blankProfile(){ return { habits:{}, gym:{}, cycle:{}, att:{}, cardio:{}, weight:70, pt:{}, exam:PT_EXAM_DEFAULT }; }
 let data = { miguel: blankProfile(), sofia: blankProfile(), tennis: [] };
 let ui = { profile:"miguel", tab:"hoy", tennisDraft:{}, celebrated:{}, cardioPick:null, cardioMin:20, cardioKcal:200 };
 let photos = { miguel:null, sofia:null };
@@ -550,6 +606,7 @@ function loadLocal(){
     const d=data[p];
     d.habits=d.habits||{}; d.gym=d.gym||{}; d.cycle=d.cycle||{}; d.att=d.att||{};
     d.cardio=d.cardio||{}; d.weight=d.weight||70;
+    d.pt=d.pt||{}; d.exam=d.exam||PT_EXAM_DEFAULT;
   });
   photos.miguel = LS.read("dd_photo_miguel", null);
   photos.sofia  = LS.read("dd_photo_sofia", null);
@@ -570,10 +627,20 @@ function cardioMin(p){ return cardioList(p).reduce((s,e)=>s+(e.min||0),0); }
 function kcalFor(p,met,min){ return Math.round(met*3.5*(data[p].weight||70)/200*min); }
 function actName(id){ const a=ACTIVITIES.find(x=>x[0]===id); return a?a[1]:id; }
 
+/* ----- Portugués ----- */
+function ptPlan(){ return PT_PLAN[TODAY.getDay()]; }
+function ptDone(p,i){ return !!(data[p].pt[TKEY]||{})[i]; }
+function ptAllDone(p){ return ptPlan().tasks.every((_,i)=>ptDone(p,i)); }
+function daysToExam(p){
+  const e=new Date((data[p].exam||PT_EXAM_DEFAULT)+"T12:00:00");
+  return Math.max(0, Math.ceil((e-TODAY)/86400000));
+}
+
 function isDone(p,h,k){
-  if(k==="water")  return (h.water||0)>=WATER_GOAL;
-  if(k==="steps")  return (h.steps||0)>=STEP_GOAL;
-  if(k==="cardio") return cardioKcal(p)>=CARDIO_GOAL[p];
+  if(k==="water")     return (h.water||0)>=WATER_GOAL;
+  if(k==="steps")     return (h.steps||0)>=STEP_GOAL;
+  if(k==="cardio")    return cardioKcal(p)>=CARDIO_GOAL[p];
+  if(k==="portugues") return ptAllDone(p);
   return !!h[k];
 }
 function doneCount(p,h){ return HABITS[p].filter(k=>isDone(p,h,k)).length; }
@@ -608,6 +675,12 @@ function buildNudges(p,h){
   const hr=NOW.getHours(), out=[];
   const dow=TODAY.getDay(), routine=ROUTINES[p][dow];
   if(dayFull(p,h)) return [{ic:"🏆",t:"Día completo. Todo cumplido — descansa bien, mañana se repite."}];
+  if(hr<11 && !isDone(p,h,"movilidad")) out.push({ic:"🌄",t:"Movilidad y estiramiento antes de arrancar el día: 5-10 minutos y listo."});
+  if(p==="miguel" && !ptAllDone(p)){
+    const plan=ptPlan(), falta=plan.tasks.filter((_,i)=>!ptDone(p,i)).length;
+    if(hr>=18) out.push({ic:"💬",t:`Portugués: te faltan ${falta} de ${plan.tasks.length} tareas. Hoy toca ${plan.focus.toLowerCase()}.`});
+    else if(plan.clase && hr>=15) out.push({ic:"💬",t:"Repasa hoy mismo los apuntes de la clase. Es lo que más rinde de todo el día."});
+  }
   if(hr>=20 && !isDone(p,h,"read")) out.push({ic:"📖",t:"Se está haciendo tarde para leer. Con 10 minutos ya cuenta."});
   if(hr>=17 && !isDone(p,h,"cardio")){
     const falta=CARDIO_GOAL[p]-cardioKcal(p);
@@ -700,9 +773,15 @@ function renderHoy(main){
       </div>
     </div>`));
 
-  const checks=[["sleep","Dormir bien","7 a 8 horas",IC.sleep],["read","Leer","Un rato hoy",IC.read]];
-  if(p==="miguel") checks.push(["creatina","Creatina","Dosis diaria",IC.creatina],["proteina","Proteína","Cumplir tus gramos",IC.proteina]);
-  checks.forEach(([k,name,goal,icon])=>{
+  const checks=[
+    ["movilidad","Movilidad al despertar","5-10 min apenas te levantes",IC.movilidad, MOBILITY.join(" · ")],
+    ["sleep","Dormir bien","7 a 8 horas",IC.sleep,""],
+    ["read","Leer","Un rato hoy",IC.read,""]
+  ];
+  if(p==="miguel") checks.push(
+    ["creatina","Creatina","Dosis diaria",IC.creatina,""],
+    ["proteina","Proteína","Cumplir tus gramos",IC.proteina,""]);
+  checks.forEach(([k,name,goal,icon,extra])=>{
     main.appendChild(el(`
       <div class="card">
         <button class="check ${isDone(p,h,k)?"on":""}" data-action="toggle" data-h="${k}">
@@ -710,6 +789,7 @@ function renderHoy(main){
           <span class="habit-meta"><span class="habit-name">${name}</span><br><span class="habit-goal">${goal}</span></span>
           <span class="habit-ic" style="margin-left:auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icon}</svg></span>
         </button>
+        ${extra?`<p class="routine">${esc(extra)}</p>`:""}
       </div>`));
   });
 
@@ -762,6 +842,32 @@ function renderHoy(main){
       </div>
       <p class="disclaimer" style="margin-top:9px">Las calorías son una estimación a partir de tu peso y la intensidad de cada actividad.</p>
     </div>`));
+
+  // ----- Portugués (solo Miguel) -----
+  if(p==="miguel"){
+    const plan=ptPlan(), dias=daysToExam(p);
+    const tasks=plan.tasks.map(([label,detail],i)=>`
+      <button class="check ptask ${ptDone(p,i)?"on":""}" data-action="pt" data-i="${i}">
+        <span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${IC.check}</svg></span>
+        <span class="habit-meta"><span class="habit-name">${esc(label)}</span><br><span class="habit-goal">${esc(detail)}</span></span>
+      </button>`).join("");
+    main.appendChild(el(`
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px">
+          <span class="eyebrow">Portugués</span>
+          <span class="badge">${dias} días para el examen</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:11px">
+          <div class="habit-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${IC.lang}</svg></div>
+          <div class="habit-meta">
+            <div class="habit-name" style="font-size:17px">${plan.focus}</div>
+            <div class="habit-goal">${plan.clase?"Hoy tienes clase: lo que veas hoy, repásalo hoy":"Día sin clase"}</div>
+          </div>
+        </div>
+        ${tasks}
+        <div class="exam"><span>Fecha del examen</span><input type="date" id="exam-in" value="${data[p].exam}"></div>
+      </div>`));
+  }
 }
 
 function renderGym(main){
@@ -934,6 +1040,13 @@ document.addEventListener("click",e=>{
     data[p].cardio[TKEY]=l.filter(x=>x.id!==t.dataset.id);
     saveProfile(p); after(p); render(); return;
   }
+  if(a==="pt"){
+    const i=t.dataset.i;
+    if(!data[p].pt[TKEY]) data[p].pt[TKEY]={};
+    const m=data[p].pt[TKEY];
+    if(m[i]) delete m[i]; else m[i]=true;
+    saveProfile(p); after(p); render(); return;
+  }
 
   if(a==="set"){ const g=data[p].gym,k=t.dataset.key; if(g[k]) delete g[k]; else g[k]=true; saveProfile(p); render(); return; }
   if(a==="att"){
@@ -959,6 +1072,7 @@ document.addEventListener("input",e=>{
   if(id==="steps-in"){ const h=todayHabit(ui.profile); h.steps=Math.max(0,parseInt(e.target.value||"0",10)); saveProfile(ui.profile); }
   if(id==="weight-in"){ const w=parseInt(e.target.value||"0",10); if(w>=30&&w<=200){ data[ui.profile].weight=w; saveProfile(ui.profile); } }
   if(id==="ckcal-in"){ ui.cardioKcal=Math.max(0,parseInt(e.target.value||"0",10)); }
+  if(id==="exam-in" && e.target.value){ data[ui.profile].exam=e.target.value; saveProfile(ui.profile); render(); }
   if(id==="t-date") ui.tennisDraft.date=e.target.value;
   if(id==="t-practiced") ui.tennisDraft.practiced=e.target.value;
   if(id==="t-improve") ui.tennisDraft.improve=e.target.value;
