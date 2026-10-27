@@ -238,6 +238,13 @@
   .set-dot.on { background:var(--accent); border-color:var(--accent); color:var(--on-accent); }
   .ex-done { color:var(--good); }
 
+  /* ---------- Comida ---------- */
+  .meal { padding:11px 0; border-top:1px solid var(--line); }
+  .meal:first-of-type { border-top:0; padding-top:2px; }
+  .meal-top { display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
+  .meal-when { font-weight:600; font-size:14px; color:var(--accent); }
+  .meal-what { font-size:14.5px; line-height:1.5; margin-top:3px; }
+
   /* ---------- Calendario ---------- */
   .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
   .cal-dow { text-align:center; font-size:11px; font-weight:700; color:var(--faint); letter-spacing:.04em; padding-bottom:3px; }
@@ -326,6 +333,9 @@
     </button>
     <button data-action="tab" data-t="gym">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/><path d="m3 10 7-7"/><path d="m14 21 7-7"/></svg>Gym
+    </button>
+    <button data-action="tab" data-t="comida">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V2"/><path d="M5 11v11"/><path d="M19 2a4 4 0 0 0-3 3.9V13h3z"/><path d="M19 13v9"/></svg>Comida
     </button>
     <button data-action="tab" data-t="tenis">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M18.1 3.5A10 10 0 0 0 5.5 5.5c-2.3 2.3-3.2 5.5-2 8.6"/><path d="M5.9 20.5A10 10 0 0 0 18.5 18.5c2.3-2.3 3.2-5.5 2-8.6"/></svg>Tenis
@@ -624,6 +634,57 @@ const TENNIS = [
 ];
 const TENNIS_ANCHOR = new Date(2026,0,4);
 
+/* ---------------- Comida ----------------
+   Recomendaciones, no un diario. Las porciones salen del gasto
+   estimado de cada uno (Mifflin-St Jeor por su peso, talla y edad,
+   con factor de actividad por entrenar 5-6 veces por semana) y de la
+   meta de proteína de 1.8 g/kg. Comida de acá, no de catálogo.
+   Los días de pesas llevan más carbohidrato; la proteína no cambia. */
+const CREATORS = [
+  ["@veronikaalvarado_","https://www.tiktok.com/@veronikaalvarado_"],
+  ["@ivonnessfit","https://www.tiktok.com/@ivonnessfit"]
+];
+const MEALS = {
+  miguel: {
+    kcal:"2.300-2.400 kcal", meta:"Déficit moderado para perder grasa sin perder fuerza",
+    entreno:[
+      ["Desayuno","3 huevos + 1 arepa + queso campesino + una fruta","~40 g proteína"],
+      ["Media mañana","Yogur griego + puñado de almendras","~20 g"],
+      ["Almuerzo","Pechuga o carne magra (180 g) + arroz + frijoles o lentejas + ensalada con aguacate","~45 g"],
+      ["Antes de entrenar","Un banano y café, una hora antes","Energía, sin pesadez"],
+      ["Después de entrenar","Batido de proteína con fruta, o atún con arepa","~30 g"],
+      ["Cena","Huevos o pollo + verduras salteadas + papa o arroz en porción pequeña","~35 g"]],
+    suave:[
+      ["Desayuno","3 huevos + queso campesino + una fruta","~35 g proteína"],
+      ["Media mañana","Yogur griego + almendras","~20 g"],
+      ["Almuerzo","Pechuga o carne magra (180 g) + ensalada grande + aguacate + media porción de arroz","~45 g"],
+      ["Media tarde","Atún o huevos duros","~20 g"],
+      ["Cena","Pollo o pescado + verduras al vapor","~35 g"]]
+  },
+  sofia: {
+    kcal:"1.900-2.100 kcal", meta:"Mantenimiento o un poco más: aquí se construye músculo, no se recorta",
+    entreno:[
+      ["Desayuno","2 huevos + arepa pequeña + fruta. O yogur griego con avena y frutos rojos","~25 g proteína"],
+      ["Media mañana","Yogur griego o un puñado de nueces","~12 g"],
+      ["Almuerzo","Pollo, carne o pescado (120 g) + arroz + ensalada con aguacate","~30 g"],
+      ["Antes de entrenar","Una fruta, una hora antes",""],
+      ["Después de entrenar","Batido de proteína con leche, o huevos con arepa","~20 g"],
+      ["Cena","Proteína + verduras + una porción moderada de papa, arroz o pasta","~25 g"]],
+    suave:[
+      ["Desayuno","2 huevos + fruta + yogur griego","~25 g proteína"],
+      ["Media mañana","Puñado de nueces o una fruta","~8 g"],
+      ["Almuerzo","Pollo, carne o pescado (120 g) + ensalada + aguacate + arroz","~30 g"],
+      ["Media tarde","Yogur griego","~15 g"],
+      ["Cena","Proteína + verduras salteadas","~25 g"]]
+  }
+};
+const MEAL_TIPS = [
+  "Proteína en todas las comidas, no toda junta en la noche: el cuerpo la aprovecha mejor repartida.",
+  "La comida de después de entrenar no es urgente al minuto, pero sí dentro de las dos horas siguientes.",
+  "El agua ya la llevas en Hoy. Con entrenamiento de pesas, apunta siempre al tope de la meta.",
+  "Si un día te saltas algo, no compenses al siguiente. La constancia pesa más que cualquier día suelto."
+];
+
 /* ---------------- Estado ---------------- */
 function blankProfile(){ return { habits:{}, gym:{}, cycle:{}, att:{}, cardio:{}, weight:70, pt:{}, exam:PT_EXAM_DEFAULT }; }
 let data = { miguel: blankProfile(), sofia: blankProfile(), tennis: [] };
@@ -765,6 +826,7 @@ function render(){
   m.innerHTML="";
   if(ui.tab==="hoy") renderHoy(m);
   else if(ui.tab==="gym") renderGym(m);
+  else if(ui.tab==="comida") renderComida(m);
   else renderTenis(m);
 }
 
@@ -1009,6 +1071,15 @@ function renderGym(main){
       ${exHTML}
     </div>`));
 
+  main.appendChild(el(`
+    <div class="card">
+      <p class="card-title" style="margin-bottom:3px">Cuentas de referencia</p>
+      <p class="card-sub" style="margin-bottom:11px">Para buscar un ejercicio que no tenga video anclado todavía.</p>
+      <div class="vids">
+        ${CREATORS.map(([n,u])=>`<a class="vid" href="${u}" target="_blank" rel="noopener">${esc(n)}</a>`).join("")}
+      </div>
+    </div>`));
+
   main.appendChild(el(calendarHTML(p)));
 }
 
@@ -1036,6 +1107,57 @@ function calendarHTML(p){
     </div>
     <p class="disclaimer" style="margin-top:11px">Se marca solo cuando registras series. Toca un día para marcarlo o quitarlo a mano. Total acumulado: <b>${allDays.size}</b> días.</p>
   </div>`;
+}
+
+function renderComida(main){
+  const p=ui.profile, r=ROUTINES[p][TODAY.getDay()], m=MEALS[p];
+  const tipo = r.rest ? "suave" : "entreno";
+  const comidas = m[tipo];
+  const kcalHoy = cardioKcal(p), pg = proteinGoal(p), pgot = todayHabit(p).proteinaG||0;
+
+  main.appendChild(el(`
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px">
+        <span class="eyebrow">${cap(TODAY.toLocaleDateString("es-ES",{weekday:"long"}))}</span>
+        <span class="badge">${r.rest?"Día suave":"Día de pesas"}</span>
+      </div>
+      <p class="card-title" style="font-size:21px;margin-bottom:4px">Qué comer hoy</p>
+      <p class="card-sub">${r.rest
+        ? "Hoy no hay pesas: misma proteína, menos arroz y arepa, más verdura."
+        : `Hoy entrenas ${esc(r.title.toLowerCase())}: la proteína manda y el carbohidrato te da la energía de la sesión.`}</p>
+      <div class="adjust" style="margin-top:12px">
+        <div><div class="k">Referencia</div><div class="v" style="font-size:12px">${m.kcal}</div></div>
+        <div><div class="k">Proteína</div><div class="v">${pgot} / ${pg} g</div></div>
+      </div>
+      <p class="disclaimer" style="margin-top:9px">${esc(m.meta)}</p>
+    </div>`));
+
+  main.appendChild(el(`
+    <div class="card">
+      ${comidas.map(([momento,que,aprox])=>`
+        <div class="meal">
+          <div class="meal-top"><span class="meal-when">${esc(momento)}</span>${aprox?`<span class="ex-scheme">${esc(aprox)}</span>`:""}</div>
+          <div class="meal-what">${esc(que)}</div>
+        </div>`).join("")}
+    </div>`));
+
+  if(kcalHoy>0){
+    const extra = kcalHoy>=400;
+    main.appendChild(el(`
+      <div class="nudge"><span class="ic">⌚</span><p>Tu reloj y la app llevan <b>${kcalHoy} kcal</b> de cardio hoy. ${
+        extra ? "Fue un día movido: suma un snack con proteína y algo de carbohidrato para recuperar."
+              : "Con eso, las porciones de arriba te sirven tal cual."}</p></div>`));
+  } else {
+    main.appendChild(el(`
+      <div class="nudge"><span class="ic">⌚</span><p>Registra el cardio del día con las calorías de tu Apple Watch y ajusto la recomendación según lo que de verdad gastaste.</p></div>`));
+  }
+
+  main.appendChild(el(`
+    <div class="card">
+      <p class="card-title" style="margin-bottom:9px">Para tener en cuenta</p>
+      ${MEAL_TIPS.map(t=>`<div class="meal"><div class="meal-what">${esc(t)}</div></div>`).join("")}
+      <p class="disclaimer" style="margin-top:11px">Son referencias generales calculadas con su peso, talla, edad y entrenamiento. Para un plan de comidas a la medida, una nutricionista les va a sacar más provecho.</p>
+    </div>`));
 }
 
 function renderTenis(main){
