@@ -229,6 +229,7 @@
     border:1px solid transparent;
   }
   .vid:active { border-color:var(--accent); }
+  .vid.ghost { background:transparent; border-color:var(--line); color:var(--muted); font-weight:500; }
   .sets { display:flex; gap:7px; margin-top:10px; flex-wrap:wrap; }
   .set-dot {
     width:40px; height:40px; border-radius:12px; border:1.5px solid var(--line); background:var(--surface-2);
@@ -582,6 +583,23 @@ const ROUTINES = {
       ["Movilidad","8 min",""]]}
   }
 };
+/* Videos anclados por ejercicio: los que Miguel y Sofía ya revisaron.
+   La clave es el nombre del ejercicio; si un día tiene una variante
+   ("Hip thrust" vs "Hip thrust con barra") se reutiliza el mismo.
+   Para añadir más, basta con pegar la URL en la lista.             */
+const VIDEOS = {
+  "Hip thrust con barra": [
+    "https://www.tiktok.com/@veronikaalvarado_/video/7567531042966392082",
+    "https://www.tiktok.com/@ivonnessfit/video/7583006947582954774"
+  ]
+};
+function videosFor(name){
+  if(VIDEOS[name]) return VIDEOS[name];
+  const k=Object.keys(VIDEOS).find(k=>name.startsWith(k)||k.startsWith(name));
+  return k?VIDEOS[k]:[];
+}
+function vidLabel(u){ const m=u.match(/@([A-Za-z0-9._\-]+)/); return m?"@"+m[1]:"Video"; }
+
 const LUMBAR_NOTE = "<b>Cuida tu zona lumbar:</b> espalda neutra, sin redondear ni arquear de más. Nada de carga axial pesada; si algo molesta, baja el peso o cámbialo.";
 const HEAVY_NOTE  = "<b>Cómo progresar:</b> en los básicos busca 6-8 reps cerca del fallo (te sobran 1-2). Cuando logres 8 limpias en todas las series, sube el peso. Los accesorios van a 10-15.";
 
@@ -971,8 +989,9 @@ function renderGym(main){
       ${tip?`<div class="ex-tip">${esc(tip)}</div>`:""}
       <div class="vids">
         <span class="vl">Ver cómo se hace</span>
-        <a class="vid" href="https://www.tiktok.com/search?q=${qTT}" target="_blank" rel="noopener">TikTok</a>
-        <a class="vid" href="https://www.youtube.com/results?search_query=${qYT}" target="_blank" rel="noopener">YouTube</a>
+        ${videosFor(name).map(u=>`<a class="vid" href="${u}" target="_blank" rel="noopener">▶ ${esc(vidLabel(u))}</a>`).join("")}
+        <a class="vid ghost" href="https://www.tiktok.com/search?q=${qTT}" target="_blank" rel="noopener">TikTok</a>
+        <a class="vid ghost" href="https://www.youtube.com/results?search_query=${qYT}" target="_blank" rel="noopener">YouTube</a>
       </div>
       ${nSets?`<div class="sets">${dots}</div>`:""}
     </div>`;
