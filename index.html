@@ -504,94 +504,86 @@ const PROTEIN_PER_KG = 1.8;
    Miguel: hipertrofia, básicos pesados 6-8 reps cerca del fallo,
    accesorios 10-15. Sofía: pierna/glúteo 8-12, cuidando la lumbar.
 ------------------------------------------- */
-const ROUTINES = {
-  miguel: {
-    1:{title:"Upper A · Empuje", tag:"Pesado 6-8", ex:[
-      ["Press de banca","4×6-8","Baja controlado, explota al subir"],
-      ["Press militar con barra","4×6-8","Glúteo y abdomen apretados"],
-      ["Press inclinado con mancuernas","3×8",""],
-      ["Fondos en paralelas (lastrados)","3×6-8","Añade peso cuando pases de 8"],
-      ["Elevaciones laterales","3×12-15","Accesorio: más reps"],
-      ["Extensión de tríceps en polea","3×10-12",""]]},
-    2:{title:"Lower A", tag:"Pesado 6-8", ex:[
-      ["Sentadilla","4×6-8","Profundidad cómoda, espalda neutra"],
-      ["Peso muerto rumano","3×6-8","Estiramiento del femoral"],
-      ["Prensa","3×8-10",""],
-      ["Curl femoral","3×10-12",""],
-      ["Gemelos de pie","4×12-15",""]]},
-    3:{title:"Descanso activo · Cardio", tag:"Recuperación", rest:true, ex:[
-      ["Caminata rápida","35-40 min","Ideal para cerrar los 10.000 pasos"],
-      ["Bici o elíptica suave","15 min","Ritmo conversacional"],
+/* Sesiones seleccionables. No están atadas al día de la semana: la app
+   propone la siguiente de la rotación según la última que registraste,
+   y si ese día hiciste otra cosa, se cambia a mano.                  */
+const WORKOUTS = {
+  miguel: [
+    {id:"upperA", title:"Upper A · Pecho, tríceps y hombro", tag:"Pesado 6-8", ex:[
+      ["Press de banca","4×6-8","Omóplatos juntos y pegados al banco, pies firmes en el piso. Baja controlado hasta rozar el pecho y explota al subir. Error: rebotar la barra en el pecho."],
+      ["Press militar con barra","4×6-8","De pie, glúteo y abdomen apretados. La barra sube en línea recta pasando cerca de la cara. Error: arquear la espalda baja para compensar falta de movilidad de hombro."],
+      ["Press inclinado con mancuernas","3×8-10","Banco a 30-45°. Codos a unos 45° del cuerpo, no abiertos del todo. Baja hasta la altura del pecho."],
+      ["Fondos en paralelas","3×8-10","Inclínate un poco adelante para cargar más pecho; vertical carga más tríceps. Baja hasta que el brazo quede paralelo. Añade peso cuando pases de 10 limpias."],
+      ["Elevaciones laterales","4×12-15","Accesorio: peso ligero y muchas reps. Sube hasta la altura del hombro con los codos algo doblados. Si te balanceas, baja el peso."],
+      ["Extensión de tríceps en polea","3×10-12","Codos pegados al costado y quietos. Todo el movimiento es del antebrazo."]]},
+    {id:"upperB", title:"Upper B · Espalda y bíceps", tag:"Pesado 6-8", ex:[
+      ["Dominadas","4×6-8","Lastradas si pasas de 8 limpias. Empieza bajando los omóplatos, después tira con los codos. Error: dar pataditas para subir."],
+      ["Remo con barra","4×6-8","Tronco inclinado unos 45° y espalda plana. Lleva la barra al ombligo. Error: incorporarte con el tronco para mover el peso."],
+      ["Jalón al pecho","3×8-10","Omóplatos abajo primero. Barra al pecho, sin echarte demasiado atrás."],
+      ["Remo en polea baja","3×10","Espalda recta, pecho afuera. Aprieta los omóplatos al final del recorrido."],
+      ["Face pull","3×15","Cuerda a la altura de la cara, codos altos. Salud del hombro: no lo saltes."],
+      ["Curl con barra","3×8-10","Codos fijos al costado. Baja más lento de lo que subes."]]},
+    {id:"lower", title:"Lower · Pierna completa", tag:"Pesado 6-8", ex:[
+      ["Sentadilla","4×6-8","Barra apoyada en los trapecios, pies a la anchura de los hombros. Baja a la profundidad que te permita mantener la espalda neutra. Error: que se te vayan las rodillas hacia adentro."],
+      ["Peso muerto rumano","4×6-8","Cadera atrás con las rodillas casi rectas, la barra rozando las piernas. Baja hasta sentir el estiramiento del femoral. Error: redondear la espalda."],
+      ["Prensa","3×10-12","Espalda baja pegada al respaldo todo el recorrido. No bloquees las rodillas arriba."],
+      ["Curl femoral","3×10-12","Sube rápido y baja lento, controlando la vuelta."],
+      ["Extensión de cuádriceps","3×12-15","Aprieta arriba un segundo. Accesorio, no busques récords."],
+      ["Gemelos de pie","4×12-15","Rango completo: estira abajo y sube hasta la punta del pie."]]},
+    {id:"brazos", title:"Brazos · Bíceps y tríceps", tag:"Volumen", ex:[
+      ["Press cerrado","4×8-10","Manos a la anchura de los hombros, codos pegados al cuerpo al bajar. Es el básico pesado del tríceps."],
+      ["Curl con barra Z","4×8-10","Codos quietos al costado. Si tienes que impulsar con la espalda, baja el peso."],
+      ["Press francés","3×10-12","Codos apuntando al techo y fijos. Baja la barra hacia la frente controlando."],
+      ["Curl martillo","3×10-12","Agarre neutro. Trabaja el braquial y el antebrazo además del bíceps."],
+      ["Extensión de tríceps en polea","3×12-15","Estira del todo abajo y aprieta un segundo."],
+      ["Curl en banco inclinado","3×12","Brazos colgando atrás: estira el bíceps al máximo. Peso ligero."],
+      ["Antebrazo","3×15","Muñeca apoyada en el muslo, solo sube y baja la mano."]]},
+    {id:"descanso", title:"Descanso o tenis", tag:"Recuperación", rest:true, ex:[
+      ["Caminata o cardio suave","30-40 min","Ritmo en el que puedas hablar."],
       ["Movilidad de hombro y cadera","10 min",""],
-      ["Plancha","3×45 s",""]]},
-    4:{title:"Upper B · Tirón", tag:"Pesado 6-8", ex:[
-      ["Dominadas (lastradas)","4×6-8","Si pasas de 8 limpias, añade peso"],
-      ["Remo con barra","4×6-8","Tronco firme, sin tirones"],
-      ["Jalón al pecho","3×8-10",""],
-      ["Remo en polea baja","3×8-10",""],
-      ["Face pull","3×15","Salud del hombro"],
-      ["Curl con barra","3×8-10",""],
-      ["Curl martillo","3×10-12",""]]},
-    5:{title:"Lower B", tag:"Pesado 6-8", ex:[
-      ["Sentadilla frontal","4×6-8",""],
-      ["Hip thrust","3×8",""],
-      ["Zancadas con mancuernas","3×8","Por pierna"],
-      ["Extensión de cuádriceps","3×12",""],
-      ["Gemelos sentado","4×15",""]]},
-    6:{title:"Upper C · Hombro y brazo", tag:"Volumen", ex:[
-      ["Press militar sentado","4×6-8",""],
-      ["Elevaciones laterales","4×12-15",""],
-      ["Press cerrado","3×6-8",""],
-      ["Curl con barra Z","3×8-10",""],
-      ["Press francés","3×10-12",""],
-      ["Antebrazo","3×15",""]]},
-    0:{title:"Tenis · descanso de gym", tag:"🎾 Domingo", rest:true, ex:[
-      ["Estiramiento post-tenis","10 min",""],
-      ["Movilidad de cadera y hombro","8 min",""]]}
-  },
-  sofia: {
-    1:{title:"Glúteo + cuádriceps", tag:"Día 1", ex:[
+      ["Estiramiento","8 min","Sin rebotes, aguanta cada posición."]]}
+  ],
+  sofia: [
+    {id:"d1", title:"Glúteo + cuádriceps", tag:"Día 1", ex:[
       ["Hip thrust con barra","4×8-10","Espalda apoyada en el banco a la altura de los omóplatos. Barbilla al pecho y costillas abajo. Empuja con los talones y aprieta el glúteo arriba 1 segundo. Error típico: arquear la espalda baja para subir más — el rango lo da la cadera."],
       ["Sentadilla hack","4×10","Pies a la anchura de los hombros y algo adelantados. Baja controlada hasta que el muslo quede paralelo. Espalda pegada al respaldo todo el recorrido. Error: despegar la cadera abajo."],
       ["Sentadilla búlgara","3×10","Por pierna. Pie de atrás sobre el banco, el de adelante bien separado. Baja recto llevando la rodilla trasera al suelo. Error: paso corto, te carga la rodilla en vez del glúteo."],
       ["Abducción en máquina","3×15","Espalda apoyada. Abre con fuerza y cierra despacio, sin dejar que las placas golpeen. Inclinarte un poco hacia adelante enfatiza más el glúteo."],
       ["Crunch en polea","3×12-15","De rodillas, cuerda a los lados de la cabeza. Enrolla la columna llevando el pecho hacia la cadera. Error: tirar con los brazos; el movimiento lo hace el abdomen."],
       ["Plancha lateral","3×20-30 s","Por lado. Codo justo debajo del hombro y cuerpo en línea recta. Cadera arriba, no la dejes caer. Aprieta glúteo y abdomen."]]},
-    2:{title:"Espalda + bíceps", tag:"Día 2", ex:[
+    {id:"d2", title:"Espalda + bíceps", tag:"Día 2", ex:[
       ["Jalón al pecho","4×8-10","Agarre algo más ancho que los hombros. Baja primero los omóplatos y después lleva la barra al pecho. Error: echarte muy atrás y tirar con la espalda baja."],
       ["Remo sentado","3×10","Espalda recta y pecho afuera. Lleva el agarre al ombligo juntando los omóplatos. Error: balancear el tronco adelante y atrás para mover el peso."],
       ["Remo con mancuerna apoyado","3×10","Por lado. Una rodilla y una mano en el banco, espalda plana como una mesa. Sube el codo pegado al cuerpo. Error: girar el tronco para levantar más."],
       ["Curl de bíceps con barra Z","3×10","Codos pegados al costado y quietos. Sube controlando y baja más lento todavía. Error: impulsar con la espalda."],
       ["Curl martillo","3×12","Agarre neutro, como sosteniendo un martillo. Codos fijos. Trabaja el antebrazo además del bíceps."],
       ["Dead bug","3×10","Por lado. Boca arriba con la espalda baja pegada al piso todo el tiempo. Estira brazo y pierna contrarios despacio. Si la lumbar se despega, perdiste el ejercicio."]]},
-    3:{title:"Femoral + glúteo", tag:"Día 3", lumbar:true, ex:[
+    {id:"d3", title:"Femoral + glúteo", tag:"Día 3", lumbar:true, ex:[
       ["Peso muerto rumano","4×8-10","Empieza con muy poco peso hasta dominarlo. Rodillas casi rectas y lleva la cadera atrás, como cerrando una puerta con la cola. La barra roza las piernas. Baja solo hasta sentir el estiramiento detrás del muslo. Error: redondear la espalda."],
       ["Curl femoral sentado","4×10","Espalda apoyada y rodillas alineadas con el eje de la máquina. Baja los talones con fuerza y sube despacio."],
       ["Hip thrust","3×10","Igual que el día 1, con algo menos de peso. Barbilla al pecho y aprieta arriba 1 segundo."],
       ["Puente de glúteo con banda","3×15","Boca arriba, banda por encima de las rodillas y pies cerca de la cola. Sube la cadera abriendo las rodillas contra la banda. Aprieta 2 segundos arriba."],
       ["Patada de glúteo en polea","3×15","Por pierna. Tobillera puesta y tronco firme. Lleva la pierna atrás sin arquear la espalda. El movimiento es de cadera: corto y bien apretado."],
       ["Abducción tumbada","2×20","De lado y con el cuerpo alineado. Sube la pierna de arriba sin girar la cadera hacia atrás. Lento y controlado."]]},
-    4:{title:"Hombro + pecho", tag:"Día 4", ex:[
+    {id:"d4", title:"Hombro + pecho", tag:"Día 4", ex:[
       ["Press de hombro en máquina","4×8-10","Espalda apoyada y agarre a la altura de los hombros. Sube sin bloquear del todo los codos. Error: arquear la espalda al empujar."],
       ["Press inclinado con mancuernas","3×10","Banco a 30-45°. Baja hasta la altura del pecho con los codos a unos 45° del cuerpo. Error: abrir los codos del todo, castiga el hombro."],
       ["Elevaciones laterales","3×15","Peso ligero, de verdad. Sube los brazos hasta la altura del hombro con los codos algo doblados. Si tienes que balancearte, baja el peso."],
       ["Aperturas en polea","3×12","Brazos casi rectos, abraza hacia el centro. Debes sentir el pecho, no los brazos."],
       ["Pallof press","3×10","Por lado. De costado a la polea, estira los brazos al frente sin dejar que el tronco gire. Es un ejercicio de aguantar, no de mover."],
       ["Crunch inverso","3×12","Boca arriba, lleva las rodillas al pecho despegando la cadera del suelo. Lento y sin impulso."]]},
-    5:{title:"Full body + core", tag:"Día 5", lumbar:true, ex:[
+    {id:"d5", title:"Full body + core", tag:"Día 5", lumbar:true, ex:[
       ["Sentadilla goblet","3×12","Mancuerna al pecho con las dos manos. Baja entre las rodillas manteniendo el pecho arriba. Es la mejor para aprender el patrón de sentadilla."],
       ["Press de pecho en máquina","3×10","Agarre a la altura del pecho. Empuja sin bloquear los codos y vuelve controlando."],
       ["Jalón al pecho","3×10","Omóplatos abajo primero, después los brazos."],
       ["Peso muerto rumano con mancuernas","3×10","Mismo movimiento de cadera hacia atrás, mancuernas rozando las piernas. Más fácil de controlar que con barra."],
       ["Plancha","3×30-40 s","Codos bajo los hombros y cuerpo en línea. Aprieta glúteo y abdomen. Error: subir la cola o dejar caer la cadera."],
       ["Dead bug","3×12","Por lado. Lumbar pegada al piso en todo momento."]]},
-    6:{title:"Clase de tenis", tag:"🎾 Sábado", rest:true, ex:[
-      ["Clase de tenis","1 h",""],
-      ["Estiramiento de cadera y espalda","10 min","Después de la clase, sin rebotes."]]},
-    0:{title:"Tenis juntos · descanso de gym", tag:"🎾 Domingo", rest:true, ex:[
-      ["Estiramiento de cadera y espalda","10 min",""],
+    {id:"tenis", title:"Tenis o descanso", tag:"🎾 Recuperación", rest:true, ex:[
+      ["Tenis","1 h",""],
+      ["Estiramiento de cadera y espalda","10 min","Después de jugar, sin rebotes."],
       ["Movilidad","8 min",""]]}
-  }
+  ]
 };
 /* Videos anclados por ejercicio: los que Miguel y Sofía ya revisaron.
    La clave es el nombre del ejercicio; si un día tiene una variante
@@ -686,7 +678,7 @@ const MEAL_TIPS = [
 ];
 
 /* ---------------- Estado ---------------- */
-function blankProfile(){ return { habits:{}, gym:{}, cycle:{}, att:{}, cardio:{}, weight:70, pt:{}, exam:PT_EXAM_DEFAULT }; }
+function blankProfile(){ return { habits:{}, gym:{}, cycle:{}, att:{}, cardio:{}, weight:70, pt:{}, exam:PT_EXAM_DEFAULT, sess:{} }; }
 let data = { miguel: blankProfile(), sofia: blankProfile(), tennis: [] };
 let ui = { profile:"miguel", tab:"hoy", tennisDraft:{}, celebrated:{}, cardioPick:null, cardioMin:20, cardioKcal:200 };
 let photos = { miguel:null, sofia:null };
@@ -715,7 +707,7 @@ function loadLocal(){
     d.habits=d.habits||{}; d.gym=d.gym||{}; d.cycle=d.cycle||{}; d.att=d.att||{};
     d.cardio=d.cardio||{}; d.weight=d.weight||70;
     if(d.weight===70) d.weight = (p==="miguel") ? 78 : 49;   // medición de octubre
-    d.pt=d.pt||{}; d.exam=d.exam||PT_EXAM_DEFAULT;
+    d.pt=d.pt||{}; d.exam=d.exam||PT_EXAM_DEFAULT; d.sess=d.sess||{};
     if(d.exam===PT_EXAM_OLD) d.exam=PT_EXAM_DEFAULT;   // corrige el marcador de posición
   });
   photos.miguel = LS.read("dd_photo_miguel", null);
@@ -747,6 +739,24 @@ function daysToExam(p){
 }
 
 function proteinGoal(p){ return Math.round((data[p].weight||70)*PROTEIN_PER_KG); }
+
+/* ----- Sesión del día ----- */
+function gymList(p){ return WORKOUTS[p].filter(w=>!w.rest); }
+/* La siguiente de la rotación según la última sesión registrada. */
+function suggestedWorkout(p){
+  const list=gymList(p);
+  for(let i=1;i<=21;i++){
+    const id=data[p].sess[keyOf(addDays(TODAY,-i))];
+    if(!id) continue;
+    const idx=list.findIndex(w=>w.id===id);
+    if(idx>=0) return list[(idx+1)%list.length].id;
+  }
+  return list[0].id;
+}
+function todayWorkout(p){
+  const id=data[p].sess[TKEY]||suggestedWorkout(p);
+  return WORKOUTS[p].find(w=>w.id===id)||WORKOUTS[p][0];
+}
 
 function isDone(p,h,k){
   if(k==="water")     return (h.water||0)>=WATER_GOAL;
@@ -786,7 +796,7 @@ function tennisSession(){
 
 function buildNudges(p,h){
   const hr=NOW.getHours(), out=[];
-  const dow=TODAY.getDay(), routine=ROUTINES[p][dow];
+  const routine=todayWorkout(p);
   if(dayFull(p,h)) return [{ic:"🏆",t:"Día completo. Todo cumplido — descansa bien, mañana se repite."}];
   if(hr<11 && !isDone(p,h,"movilidad")) out.push({ic:"🌄",t:"Movilidad y estiramiento antes de arrancar el día: 5-10 minutos y listo."});
   if(p==="miguel" && !ptAllDone(p)){
@@ -1007,7 +1017,20 @@ function renderHoy(main){
 }
 
 function renderGym(main){
-  const p=ui.profile, dow=TODAY.getDay(), r=ROUTINES[p][dow];
+  const p=ui.profile, r=todayWorkout(p);
+  const elegido = !!data[p].sess[TKEY];
+
+  // Selector: qué sesión toca hoy
+  main.appendChild(el(`
+    <div class="card">
+      <p class="card-title" style="margin-bottom:3px">¿Qué entrenas hoy?</p>
+      <p class="card-sub" style="margin-bottom:11px">${elegido
+        ? "Elegida por ti. Toca otra si te cambiaste de idea."
+        : "Te propongo la que sigue después de tu última sesión."}</p>
+      <div class="acts">
+        ${WORKOUTS[p].map(w=>`<button class="act ${w.id===r.id?"on":""}" data-action="sess" data-id="${w.id}">${esc(w.title.split(" · ")[0])}</button>`).join("")}
+      </div>
+    </div>`));
 
   if(p==="sofia"){
     const phase=data.sofia.cycle[TKEY]||null;
@@ -1040,7 +1063,7 @@ function renderGym(main){
     const nSets=parseInt((scheme.match(/^(\d+)×/)||[])[1]||0,10);
     let dots="", allOn=nSets>0;
     for(let s=0;s<nSets;s++){
-      const k=`${TKEY}|${i}|${s}`, on=!!data[p].gym[k];
+      const k=`${TKEY}|${r.id}|${i}|${s}`, on=!!data[p].gym[k];
       if(!on) allOn=false;
       dots+=`<button class="set-dot ${on?"on":""}" data-action="set" data-key="${k}" aria-label="Serie ${s+1}">${s+1}</button>`;
     }
@@ -1065,7 +1088,7 @@ function renderGym(main){
         <span class="eyebrow">${cap(TODAY.toLocaleDateString("es-ES",{weekday:"long"}))}</span>
         <span class="badge">${r.tag}</span>
       </div>
-      <p class="card-title" style="font-size:21px;margin-bottom:12px">${r.title}</p>
+      <p class="card-title" style="font-size:21px;margin-bottom:12px">${esc(r.title)}</p>
       ${r.lumbar?`<div class="note" style="margin-bottom:10px"><span>${LUMBAR_NOTE}</span></div>`:""}
       ${(p==="miguel"&&!r.rest)?`<div class="note" style="margin-bottom:10px"><span>${HEAVY_NOTE}</span></div>`:""}
       ${exHTML}
@@ -1110,7 +1133,7 @@ function calendarHTML(p){
 }
 
 function renderComida(main){
-  const p=ui.profile, r=ROUTINES[p][TODAY.getDay()], m=MEALS[p];
+  const p=ui.profile, r=todayWorkout(p), m=MEALS[p];
   const tipo = r.rest ? "suave" : "entreno";
   const comidas = m[tipo];
   const kcalHoy = cardioKcal(p), pg = proteinGoal(p), pgot = todayHabit(p).proteinaG||0;
@@ -1221,6 +1244,7 @@ document.addEventListener("click",e=>{
 
   if(a==="water"){ const h=todayHabit(p); h.water=Math.max(0,Math.round((h.water+parseFloat(t.dataset.v))*100)/100); saveProfile(p); after(p); render(); return; }
   if(a==="toggle"){ const h=todayHabit(p); h[t.dataset.h]=!h[t.dataset.h]; saveProfile(p); after(p); render(); return; }
+  if(a==="sess"){ data[p].sess[TKEY]=t.dataset.id; saveProfile(p); render(); return; }
   if(a==="prot"){ const hh=todayHabit(p); hh.proteinaG=Math.max(0,(hh.proteinaG||0)+parseInt(t.dataset.v,10)); saveProfile(p); after(p); render(); return; }
   if(a==="cpick"){ ui.cardioPick = (ui.cardioPick===t.dataset.id) ? null : t.dataset.id; render(); return; }
   if(a==="cmin"){ ui.cardioMin = Math.max(5, ui.cardioMin + parseInt(t.dataset.v,10)); render(); return; }
