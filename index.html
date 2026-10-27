@@ -424,7 +424,7 @@ const ACTIVITIES = [
   ["eliptica", "Elíptica",       5.5],
   ["tenis",    "Tenis",          7.3],
   ["escaleras","Escaleras",      8.0],
-  ["otro",     "Otro",           0  ]
+  ["otro",     "Del reloj",      0  ]
 ];
 
 /* Movilidad al despertar: rutina corta, articulación por articulación,
@@ -869,7 +869,7 @@ function renderHoy(main){
   let picker="";
   if(ui.cardioPick==="otro"){
     picker=`<div class="pickrow">
-      <div class="pickval"><div class="pv"><input class="wrow-kcal" id="ckcal-in" type="number" inputmode="numeric" value="${ui.cardioKcal}" min="0" step="10" style="width:92px;font-family:var(--ff-mono);font-weight:700;font-size:17px;text-align:center;padding:8px 4px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--text)" onfocus="this.select()"> kcal</div><div class="pk">Escribe las calorías que marcó la máquina</div></div>
+      <div class="pickval"><div class="pv"><input class="wrow-kcal" id="ckcal-in" type="number" inputmode="numeric" value="${ui.cardioKcal}" min="0" step="10" style="width:92px;font-family:var(--ff-mono);font-weight:700;font-size:17px;text-align:center;padding:8px 4px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--text)" onfocus="this.select()"> kcal</div><div class="pk">Las calorías activas que marcó tu Apple Watch o la máquina</div></div>
       <button class="add" data-action="cadd">Añadir</button>
     </div>`;
   } else if(ui.cardioPick){
